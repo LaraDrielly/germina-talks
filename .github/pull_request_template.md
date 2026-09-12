@@ -5,8 +5,6 @@ Inclua um resumo das mudanças e qual problema foi corrigido.
 Inclua também contexto e motivação relevantes.
 -->
 
-Closes # (número da issue, se aplicável)
-
 ## 🛠️ Tipo de mudança
 
 <!-- Por favor, marque as opções relevantes com um 'x' -->
