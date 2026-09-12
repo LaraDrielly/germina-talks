@@ -2,33 +2,46 @@ schema: spec-driven
 githubCopilot:
   cloudAgent: true
 
-# Project context (optional)
-# This is shown to AI when creating artifacts.
-# Add your tech stack, conventions, style guides, domain knowledge, etc.
-# Example:
-#   context: |
-#     Tech stack: TypeScript, React, Node.js
-#     We use conventional commits
-#     Domain: e-commerce platform
+context: |
+  Projeto: Germina Talks — plataforma open source de comunidade escolar do Instituto J&F.
+  Problema: fragmentação de comunicação escolar (WhatsApp, Instagram, Classroom).
+  Site institucional: https://institutojef.org.br/
 
-# Per-artifact rules (optional)
-# Add custom rules for specific artifacts.
-# Example:
-#   rules:
-#     proposal:
-#       - Keep proposals under 500 words
-#       - Always include a "Non-goals" section
-#     tasks:
-#       - Break tasks into chunks of max 2 hours
+  Documentação:
+    - Visão: docs/vision.md
+    - Design System: docs/design-system.md (cores Instituto J&F: primary #3A255B, accent #27AAE1)
+    - Glossário: docs/glossary.md
+    - Técnico: docs/technical/overview.md, backend.md, database.md, frontend.md, api-contracts.md
+    - Convenções de specs: openspec/specs/_meta/conventions.md
 
-# Per-operation guidance (optional)
-# Add advisory guidance for how apply and archive work should be conducted.
-# This is separate from artifact rules above.
-# Example:
-#   operations:
-#     apply:
-#       guidance:
-#         - Keep test summaries concise
-#     archive:
-#       guidance:
-#         - Summarize the archive outcome before finishing
+  Stack: Next.js, TypeScript, Tailwind CSS, Prisma, PostgreSQL, Auth.js
+  Identidade visual: Inter, cores do Instituto J&F (ver design-system.md)
+  Toda feature de conteúdo MUST declarar escopo (global | classroom).
+  UI em português; código/variáveis em inglês.
+
+rules:
+  proposal:
+    - Incluir seção "Non-goals"
+    - Linkar docs/vision.md
+    - Declarar prioridade (P0/P1/P2)
+  design:
+    - Referenciar docs/design-system.md para componentes UI
+    - Seção obrigatória "API changes"
+    - Seção obrigatória "Database changes"
+    - Seção obrigatória "Frontend changes"
+    - Seguir padrões em docs/technical/
+  tasks:
+    - Agrupar: Spec, Database, Backend, Frontend, Docs
+    - Máximo 2h por task
+    - Separar migration, API, UI, testes
+
+operations:
+  apply:
+    guidance:
+      - Seguir docs/technical/backend.md e frontend.md
+      - Usar cores do design-system.md (#3A255B, #27AAE1, #11C76F)
+      - Mensagens de UI em português
+  archive:
+    guidance:
+      - Atualizar docs/technical/database.md se novas tabelas
+      - Atualizar docs/technical/api-contracts.md se novos endpoints
