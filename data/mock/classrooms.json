@@ -1,0 +1,34 @@
+[
+  {
+    "id": "a11b22c3-33d4-4e55-8666-777788889901",
+    "name": "3º ano ADS 2026",
+    "slug": "3-ads-2026",
+    "schoolTrack": "tech",
+    "year": 2026,
+    "createdAt": "2026-01-20T10:00:00.000Z"
+  },
+  {
+    "id": "b22c33d4-44e5-4f66-9777-88889999a012",
+    "name": "1º ano VET 2026",
+    "slug": "1-vet-2026",
+    "schoolTrack": "factory",
+    "year": 2026,
+    "createdAt": "2026-01-20T10:05:00.000Z"
+  },
+  {
+    "id": "c33d44e5-55f6-4077-a888-9999aaaab123",
+    "name": "2º ano ADM 2026",
+    "slug": "2-adm-2026",
+    "schoolTrack": "business",
+    "year": 2026,
+    "createdAt": "2026-01-20T10:10:00.000Z"
+  },
+  {
+    "id": "d44e55f6-6607-4188-b999-aaaabbbbc234",
+    "name": "Projeto Integrador 2026",
+    "slug": "projeto-integrador-2026",
+    "schoolTrack": "tech",
+    "year": 2026,
+    "createdAt": "2026-03-02T14:00:00.000Z"
+  }
+]

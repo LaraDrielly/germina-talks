@@ -170,6 +170,8 @@ O seed cria:
 - 5 usuários (2 alunos, 2 professores, 1 coordenação)
 - Conteúdo de exemplo em cada módulo
 
+Enquanto o Prisma não estiver no repositório, o equivalente mockado está em [`data/mock/`](../../data/mock/) (JSON por tabela, camelCase no formato da API). Há também a sala extra **Projeto Integrador 2026**, usada nos cenários de múltiplas salas.
+
 ## O que vai no design.md da feature
 
 - Novas colunas ou tabelas específicas
