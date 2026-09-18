@@ -41,6 +41,12 @@ Este projeto usa [OpenSpec](https://github.com/Fission-AI/OpenSpec) para Spec-Dr
 /openspec-apply-change add-notifications
 ```
 
+## Gerenciamento de Tarefas
+
+Todas as tarefas de desenvolvimento, desde a base até novas features, são rastreadas em [`.agents/TASKS.md`](.agents/TASKS.md).
+- **Protocolo**: Qualquer implementação deve ser planejada neste arquivo e aprovada antes da execução.
+- **Commits**: Cada tarefa listada no arquivo corresponde a um commit atômico.
+
 ## Licença
 
 Open source — contribuições bem-vindas da comunidade escolar.

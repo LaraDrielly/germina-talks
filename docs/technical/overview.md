@@ -1,8 +1,15 @@
-# Visão técnica — Germina Talks
+## Visão técnica — Germina Talks
 
 Ponto de entrada para desenvolvedores e agentes. Leia este documento antes de implementar qualquer feature.
 
+## Planejamento e Execução
+
+Para garantir rastreabilidade, todo planejamento técnico de implementação de features deve ser registrado em [`.agents/TASKS.md`](../../.agents/TASKS.md).
+- O fluxo de trabalho exige: **Planejamento no TASKS.md** -> **Aprovação do Usuário** -> **Implementação**.
+- Cada tarefa listada resulta em um commit atômico seguindo as convenções.
+
 ## Stack proposta (MVP)
+
 
 | Camada | Tecnologia | Motivo |
 |--------|------------|--------|

@@ -10,7 +10,12 @@ O Germina Talks é um projeto **open source** da comunidade do Instituto J&F. Es
 
 ## Fluxo de contribuição
 
-### 1. Explore a ideia
+### 1. Planejamento (Novo Passo Obrigatório)
+Antes de qualquer implementação ou change OpenSpec, **liste as tarefas técnicas** no arquivo [`.agents/TASKS.md`](.agents/TASKS.md).
+- O agente irá revisar a lista, aguardar sua confirmação e só então prosseguirá com a execução.
+- Cada tarefa listada no arquivo corresponde a um commit atômico.
+
+### 2. Explore a ideia
 
 Use a skill `openspec-explore` ou discuta no chat antes de criar uma feature:
 
@@ -18,7 +23,7 @@ Use a skill `openspec-explore` ou discuta no chat antes de criar uma feature:
 /openspec-explore Quero adicionar curtidas nos posts
 ```
 
-### 2. Crie a feature
+### 3. Crie a feature
 
 Use `germina-create-feature` para scaffold padronizado:
 
@@ -32,21 +37,23 @@ Ou use `openspec-propose` para uma change completa:
 /openspec-propose add-reactions
 ```
 
-### 3. Revise os artefatos
+### 4. Revise os artefatos e Tarefas
 
 A change terá:
 - `proposal.md` — o quê e por quê
 - `design.md` — impacto em API, banco e frontend
 - `tasks.md` — checklist de implementação
 - `specs/.../spec.md` — delta de comportamento
+- **Reforço**: Garanta que as tarefas de implementação estejam refletidas em `[`.agents/TASKS.md`](.agents/TASKS.md).
 
-### 4. Implemente
+### 5. Implemente
 
 ```
 /openspec-apply-change add-reactions
 ```
+(Siga o protocolo de confirmação de tarefas antes de cada bloco de execução).
 
-### 5. Finalize
+### 6. Finalize
 
 Após PR aprovado e tasks completas:
 
