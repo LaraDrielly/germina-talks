@@ -1,0 +1,23 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --color-primary: #3a255b;
+  --color-accent: #27aae1;
+  --color-success: #11c76f;
+  --color-warning: #dc4405;
+  --color-text: #3c3f4f;
+  --color-surface: #f5f6f8;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-family: Inter, Roboto, system-ui, sans-serif;
+}
