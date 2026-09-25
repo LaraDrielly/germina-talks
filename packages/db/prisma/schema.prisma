@@ -1,0 +1,47 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  student
+  teacher
+  admin
+}
+
+enum SchoolTrack {
+  business
+  tech
+  factory
+}
+
+enum ScopeType {
+  global
+  classroom
+}
+
+model User {
+  id        String   @id @default(uuid()) @db.Uuid
+  email     String   @unique
+  name      String
+  role      UserRole @default(student)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("users")
+}
+
+model Classroom {
+  id         String      @id @default(uuid()) @db.Uuid
+  name       String
+  slug       String      @unique
+  schoolTrack SchoolTrack @map("school_track")
+  year       Int
+  createdAt  DateTime    @default(now()) @map("created_at")
+
+  @@map("classrooms")
+}
