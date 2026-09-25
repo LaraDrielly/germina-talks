@@ -26,6 +26,25 @@ Informações da escola estão espalhadas em WhatsApp, Instagram, Classroom e e-
 
 Next.js · TypeScript · Tailwind CSS · Prisma · PostgreSQL · Auth.js
 
+## Desenvolvimento local
+
+Pré-requisitos: Node.js 20+ e Docker Desktop.
+
+```bash
+npm install
+Copy-Item apps/web/.env.example apps/web/.env.local
+Copy-Item packages/db/.env.example packages/db/.env
+docker compose up -d
+npm run db:generate
+npm run db:migrate -- --name init
+npm run db:seed
+npm run dev
+```
+
+O app estará disponível em `http://localhost:3000`. O PostgreSQL usa a porta `5432` e o MinIO fica em `http://localhost:9001`.
+
+Comandos de validação: `npm run typecheck`, `npm run lint` e `npm run build`.
+
 ## Desenvolvimento com OpenSpec
 
 Este projeto usa [OpenSpec](https://github.com/Fission-AI/OpenSpec) para Spec-Driven Development:
