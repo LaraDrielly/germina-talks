@@ -16,8 +16,12 @@ vi.mock('../../../../lib/services/posts', () => {
     }
   }
 
-  return { PostServiceError: MockPostServiceError, postsService: { list: vi.fn(), create: vi.fn() } };
+  return {
+    PostServiceError: MockPostServiceError,
+    postsService: { list: vi.fn(), create: vi.fn() },
+  };
 });
+import { PostServiceError } from '../../../../lib/services/posts';
 
 const session = {
   user: { email: 'elisa.coordenacao@institutojef.org.br', role: 'admin' },
@@ -72,5 +76,39 @@ describe('/api/v1/posts handlers', () => {
     expect(response.status).toBe(400);
     expect(await response.json()).toMatchObject({ error: { code: 'VALIDATION_ERROR' } });
     expect(postsService.create).not.toHaveBeenCalled();
+  });
+
+  it('returns a JSON 401 for unauthenticated feed reads', async () => {
+    vi.mocked(getServerSession).mockResolvedValue(null);
+    vi.mocked(postsService.list).mockRejectedValue(
+      new PostServiceError(401, 'UNAUTHORIZED', 'Autenticação necessária.'),
+    );
+
+    const response = await GET(new Request('http://localhost/api/v1/posts'));
+
+    expect(response.status).toBe(401);
+    expect(response.headers.get('content-type')).toContain('application/json');
+    expect(response.headers.get('location')).toBeNull();
+    expect(await response.json()).toMatchObject({ error: { code: 'UNAUTHORIZED' } });
+  });
+
+  it('returns a JSON 401 for unauthenticated post creation', async () => {
+    vi.mocked(getServerSession).mockResolvedValue(null);
+    vi.mocked(postsService.create).mockRejectedValue(
+      new PostServiceError(401, 'UNAUTHORIZED', 'Autenticação necessária.'),
+    );
+
+    const response = await POST(
+      new Request('http://localhost/api/v1/posts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ content: 'Publicação válida', scopeType: 'global' }),
+      }),
+    );
+
+    expect(response.status).toBe(401);
+    expect(response.headers.get('content-type')).toContain('application/json');
+    expect(response.headers.get('location')).toBeNull();
+    expect(await response.json()).toMatchObject({ error: { code: 'UNAUTHORIZED' } });
   });
 });

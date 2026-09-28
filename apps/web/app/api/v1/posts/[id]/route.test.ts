@@ -51,4 +51,20 @@ describe('DELETE /api/v1/posts/[id]', () => {
     expect(response.status).toBe(403);
     expect(await response.json()).toMatchObject({ error: { code: 'FORBIDDEN' } });
   });
+
+  it('returns a JSON 401 for unauthenticated deletion', async () => {
+    vi.mocked(getServerSession).mockResolvedValue(null);
+    vi.mocked(postsService.delete).mockRejectedValue(
+      new PostServiceError(401, 'UNAUTHORIZED', 'Autenticação necessária.'),
+    );
+
+    const response = await DELETE(new Request('http://localhost/api/v1/posts/post-id'), {
+      params: Promise.resolve({ id: 'post-id' }),
+    });
+
+    expect(response.status).toBe(401);
+    expect(response.headers.get('content-type')).toContain('application/json');
+    expect(response.headers.get('location')).toBeNull();
+    expect(await response.json()).toMatchObject({ error: { code: 'UNAUTHORIZED' } });
+  });
 });

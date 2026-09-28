@@ -1,0 +1,204 @@
+[33mcommit bbc96610d01909f524f93b5d4054fb00e5acc622[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mfeat/implement-posts[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m, [m[1;32mmain[m[33m)[m
+Merge: 02c29ee f2d3145
+Author: PedroGabriel24 <158067468+PedroGabriel24@users.noreply.github.com>
+Date:   Fri Sep 25 08:47:55 2026 -0300
+
+    Merge pull request #8 from LaraDrielly/init-project-structure
+    
+    Init project structure
+
+[33mcommit f2d3145efbbf86d068af50e8e5d232dde7d3f023[m[33m ([m[1;31morigin/init-project-structure[m[33m)[m
+Author: Pedro Gabriel <pedro.correia@germinare.org.br>
+Date:   Fri Sep 25 08:46:23 2026 -0300
+
+    feat: implementa layout principal e navegação
+
+[33mcommit 9680a06a72a1e8948bf8a1aee3b530e2d5152e6e[m
+Author: Pedro Gabriel <pedro.correia@germinare.org.br>
+Date:   Fri Sep 25 08:44:02 2026 -0300
+
+    fix: corrige configuração do Next e ESLint
+
+[33mcommit ecd9769b67bcaf86271257d12dead0cc0e585190[m
+Author: Pedro Gabriel <pedro.correia@germinare.org.br>
+Date:   Fri Sep 25 08:44:01 2026 -0300
+
+    test: configura vitest e testes do app
+
+[33mcommit fa2672245b3c91d3e24a547ae68064744e4253c6[m
+Author: Pedro Gabriel <pedro.correia@germinare.org.br>
+Date:   Fri Sep 25 08:44:00 2026 -0300
+
+    feat: adiciona health check da aplicação
+
+[33mcommit 1b4fd97e76edbfbbb37b75012b079cf8c9fc2e34[m
+Author: Pedro Gabriel <pedro.correia@germinare.org.br>
+Date:   Fri Sep 25 08:43:58 2026 -0300
+
+    chore: configura postgres e minio locais
+
+[33mcommit 592a99c7979c0947f0e016394dd111bd1bcaef4b[m
+Author: Pedro Gabriel <pedro.correia@germinare.org.br>
+Date:   Fri Sep 25 08:43:57 2026 -0300
+
+    feat: cria pacote compartilhado
+
+[33mcommit 0be5d8f6b39994694cf71ed3080d1b4daf1d16c2[m
+Author: Pedro Gabriel <pedro.correia@germinare.org.br>
+Date:   Fri Sep 25 08:43:56 2026 -0300
+
+    feat: adiciona schema Prisma e seed do banco
+
+[33mcommit ea63c4582d00697eb3235bed527ada4af30e2e32[m
+Author: Pedro Gabriel <pedro.correia@germinare.org.br>
+Date:   Fri Sep 25 08:43:55 2026 -0300
+
+    feat: configura autenticação institucional
+
+[33mcommit 4c53830e05a91ece81ebb4b86ae777b3f7e22fb1[m
+Author: Pedro Gabriel <pedro.correia@germinare.org.br>
+Date:   Fri Sep 25 08:43:54 2026 -0300
+
+    feat: inicializa app web com Next.js e Tailwind
+
+[33mcommit 9e9fc6eedf55ba9cbbd44480e870c5ecfb31516e[m
+Author: Pedro Gabriel <pedro.correia@germinare.org.br>
+Date:   Fri Sep 25 08:43:53 2026 -0300
+
+    chore: inicializa workspaces do monorepo
+
+[33mcommit 2eb92f4f179e7db97cf7d858611bfe1f91f55b74[m
+Author: Pedro Gabriel <pedro.correia@germinare.org.br>
+Date:   Fri Sep 25 08:43:52 2026 -0300
+
+    docs: inicializa checklist do projeto
+
+[33mcommit 2eb5fec377292a07b0f85fb164ac918ff8a9f0f4[m
+Author: Pedro Gabriel <pedro.correia@germinare.org.br>
+Date:   Fri Sep 25 08:43:51 2026 -0300
+
+    chore: inicializa estrutura base do projeto
+
+[33mcommit b6659ce787ea2efb9c27f03c363ee252f3752096[m
+Author: Pedro Gabriel Correia Leite <pedrocorreia-ieg@instituto.ad>
+Date:   Mon Sep 21 10:47:50 2026 -0300
+
+    chore: update TASK.md tasks complete
+
+[33mcommit 0b3cb83250bcfd165e4e8cb212ff10272d311093[m
+Author: Pedro Gabriel Correia Leite <pedrocorreia-ieg@instituto.ad>
+Date:   Mon Sep 21 10:24:38 2026 -0300
+
+    chore: update TASK.md
+
+[33mcommit af85648122fff195441a3f898d8dcefc032e7817[m
+Author: Pedro Gabriel Correia Leite <pedrocorreia-ieg@instituto.ad>
+Date:   Mon Sep 21 10:21:52 2026 -0300
+
+    chore: add .gitignore
+
+[33mcommit 4fc06930e590ba95b2ad3592d00917be42793682[m
+Author: Pedro Gabriel Correia Leite <pedrocorreia-ieg@instituto.ad>
+Date:   Mon Sep 21 10:08:24 2026 -0300
+
+    chore: update TASK.md
+
+[33mcommit 83051ce28f1958f16303ee7266d07c39f19ec775[m
+Author: Pedro Gabriel Correia Leite <pedrocorreia-ieg@instituto.ad>
+Date:   Mon Sep 21 10:07:12 2026 -0300
+
+    chore: initialize TASK.md
+
+[33mcommit 02c29eee00be05ba449751a415a59d22d9c23d5b[m
+Merge: b36e462 e147d2e
+Author: PedroGabriel24 <158067468+PedroGabriel24@users.noreply.github.com>
+Date:   Mon Sep 14 10:27:09 2026 -0300
+
+    Merge pull request #5 from LaraDrielly/system-design
+    
+    Adicionando System Design do Slack
+
+[33mcommit e147d2e874b52bf2e057450126fc55a3471c734c[m[33m ([m[1;31morigin/system-design[m[33m)[m
+Author: Pedro Gabriel <pedro.correia@germinare.org.br>
+Date:   Mon Sep 14 10:26:12 2026 -0300
+
+    Adicionando System Design do Slack
+
+[33mcommit b36e462a19222bd9c52b7b6823054656c6d34a7f[m
+Merge: 7341aca 8792740
+Author: ciintyaarioss <157593135+ciintyaarioss@users.noreply.github.com>
+Date:   Sat Sep 12 12:15:52 2026 -0300
+
+    Merge pull request #2 from LaraDrielly/feat/git-workflow
+    
+    feat: adiciona skill de git workflow com geracao limpa de pr no chat
+
+[33mcommit 8792740bbd2839a493eae16ddf744c55c6fc84b2[m[33m ([m[1;31morigin/feat/git-workflow[m[33m)[m
+Merge: 976e34c 7341aca
+Author: ciintyaarioss <157593135+ciintyaarioss@users.noreply.github.com>
+Date:   Sat Sep 12 12:14:42 2026 -0300
+
+    Merge branch 'main' into feat/git-workflow
+
+[33mcommit 7341acad9af3aa5a9220bce94a2fd72aeeb8ada8[m
+Merge: 9d118e5 fb853d0
+Author: ciintyaarioss <157593135+ciintyaarioss@users.noreply.github.com>
+Date:   Sat Sep 12 12:12:13 2026 -0300
+
+    Merge pull request #4 from LaraDrielly/docs/project-docs
+    
+    docs: adiciona specs, documentação e skill
+
+[33mcommit fb853d0700b4468ca226873469ce2df8ae62cf6d[m[33m ([m[1;31morigin/docs/project-docs[m[33m)[m
+Author: Lara Dielly <laradgtech75@gmail.com>
+Date:   Fri Sep 11 22:01:26 2026 -0300
+
+    docs: adiciona specs, documentação e skill
+
+[33mcommit 976e34ccbdff19c446fc62765cee2c8a4e9f549d[m
+Author: ciintyaarioss <cintya.christovam@germinare.org.br>
+Date:   Fri Sep 11 21:27:13 2026 -0300
+
+    feat: adiciona skill de git workflow com geracao limpa de pr no chat
+
+[33mcommit 9d118e5f72bfe31149928bdc96b5276ecebe96a9[m
+Merge: 3157f41 7f8e016
+Author: ciintyaarioss <157593135+ciintyaarioss@users.noreply.github.com>
+Date:   Fri Sep 11 21:34:33 2026 -0300
+
+    Merge pull request #3 from LaraDrielly/fix/remove-closes-pr-template
+    
+    fix: remove closes da pr template
+
+[33mcommit 7f8e0161758cf39b870e7fea0f4b189600220ed8[m[33m ([m[1;31morigin/fix/remove-closes-pr-template[m[33m)[m
+Author: ciintyaarioss <cintya.christovam@germinare.org.br>
+Date:   Fri Sep 11 21:38:11 2026 -0300
+
+    fix: remove closes da pr template
+
+[33mcommit 3157f41fdd636ef7ac224469933fdbb66cbddaac[m
+Merge: 8d99e19 94a9def
+Author: ciintyaarioss <157593135+ciintyaarioss@users.noreply.github.com>
+Date:   Fri Sep 11 21:19:58 2026 -0300
+
+    Merge pull request #1 from LaraDrielly/feat/pr-template
+    
+    feat: adiciona template de pull request
+
+[33mcommit 94a9def7064cef1d48896193fce16c6c01d26be4[m
+Author: ciintyaarioss <cintya.christovam@germinare.org.br>
+Date:   Fri Sep 11 21:23:26 2026 -0300
+
+    feat: adiciona template de pull request
+
+[33mcommit 8d99e195d268533a36947bec4f614711c9b06973[m
+Author: Pedro Gabriel Correia Leite <pedrocorreia-ieg@instituto.ad>
+Date:   Thu Sep 3 07:27:45 2026 -0300
+
+    feat: initialize base project structure and configuration
+
+[33mcommit f9c07def2561f20c193e04286e15a173cb876ed9[m
+Author: LaraDrielly <158068316+LaraDrielly@users.noreply.github.com>
+Date:   Mon Aug 31 10:40:50 2026 -0300
+
+    Initial commit

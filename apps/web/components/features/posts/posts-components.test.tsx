@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { QueryClient, QueryClientProvider, type InfiniteData } from '@tanstack/react-query';
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it, vi } from 'vitest';
@@ -26,6 +26,12 @@ const post: FeedPost = {
   classroom: { id: 'classroom-id', name: '3º ano Tecnologia 2026', schoolTrack: 'tech' },
 };
 
+const createdClassroomPost: FeedPost = {
+  ...post,
+  id: 'created-classroom-post',
+  content: 'Dúvida da turma',
+};
+
 afterEach(() => {
   cleanup();
   vi.unstubAllGlobals();
@@ -35,11 +41,15 @@ describe('post components', () => {
   it('shows the character count and submits a selected classroom scope', async () => {
     const user = userEvent.setup();
     const fetchMock = vi.fn().mockResolvedValue(
-      new Response(JSON.stringify({ data: { id: 'created-post' } }), { status: 201 }),
+      Response.json({ data: createdClassroomPost }, { status: 201 }),
     );
     vi.stubGlobal('fetch', fetchMock);
     const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
-    client.setQueryData(['posts', 'global'], { pages: [], pageParams: [] });
+    const initialPage: PostsPage = {
+      data: [post],
+      meta: { cursor: null, hasMore: false, viewerId: 'author-id' },
+    };
+    client.setQueryData(['posts', 'classroom-id'], { pages: [initialPage], pageParams: [null] });
     withQueryClient(
       <PostForm
         classrooms={[{ id: 'classroom-id', name: '3º ano Tecnologia 2026' }]}
@@ -61,7 +71,50 @@ describe('post components', () => {
       scopeType: 'classroom',
       classroomId: 'classroom-id',
     });
-    expect(client.getQueryState(['posts', 'global'])?.isInvalidated).toBe(true);
+    expect((screen.getByRole('textbox', { name: 'Nova publicação' }) as HTMLTextAreaElement).value).toBe('');
+    expect(client.getQueryData<InfiniteData<PostsPage>>(['posts', 'classroom-id'])?.pages[0].data[0].id)
+      .toBe('created-classroom-post');
+    expect(client.getQueryState(['posts', 'classroom-id'])?.isInvalidated).toBe(true);
+    expect(client.getQueryState(['posts', 'global'])).toBeUndefined();
+  });
+
+  it('preserves the draft and announces an API error', async () => {
+    const user = userEvent.setup();
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(Response.json(
+      { error: { code: 'UNAUTHORIZED', message: 'Autenticação necessária.' } },
+      { status: 401 },
+    )));
+    withQueryClient(
+      <PostForm classrooms={[{ id: 'classroom-id', name: '3º ano Tecnologia 2026' }]} canPostGlobal />,
+    );
+
+    const textarea = screen.getByRole('textbox', { name: 'Nova publicação' }) as HTMLTextAreaElement;
+    await user.type(textarea, 'Meu rascunho');
+    await user.click(screen.getByRole('button', { name: 'Publicar' }));
+
+    expect((await screen.findByRole('alert')).textContent).toContain('Autenticação necessária.');
+    expect(textarea.value).toBe('Meu rascunho');
+  });
+
+  it('preserves the draft when fetch receives HTML or fails on the network', async () => {
+    const user = userEvent.setup();
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce(new Response('<html>login</html>', { headers: { 'Content-Type': 'text/html' } }))
+      .mockRejectedValueOnce(new TypeError('Failed to fetch'));
+    vi.stubGlobal('fetch', fetchMock);
+    withQueryClient(
+      <PostForm classrooms={[{ id: 'classroom-id', name: '3º ano Tecnologia 2026' }]} canPostGlobal />,
+    );
+
+    const textarea = screen.getByRole('textbox', { name: 'Nova publicação' }) as HTMLTextAreaElement;
+    await user.type(textarea, 'Rascunho resiliente');
+    await user.click(screen.getByRole('button', { name: 'Publicar' }));
+    expect((await screen.findByRole('alert')).textContent).toContain('Verifique sua sessão');
+    expect(textarea.value).toBe('Rascunho resiliente');
+
+    await user.click(screen.getByRole('button', { name: 'Publicar' }));
+    expect((await screen.findByRole('alert')).textContent).toContain('Não foi possível conectar ao servidor.');
+    expect(textarea.value).toBe('Rascunho resiliente');
   });
 
   it('disables submission when the character limit is exceeded', () => {

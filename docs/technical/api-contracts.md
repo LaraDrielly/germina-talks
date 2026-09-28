@@ -97,6 +97,8 @@ Exemplo de resposta:
 
 `POST /api/v1/posts` exige `content` (1 a 280 caracteres após trim) e `scopeType` (`global` ou `classroom`). `classroomId` é obrigatório para escopo de sala e proibido para o global. A resposta de sucesso é `201` com `{ "data": <post> }`. Publicação em sala exige membership; publicação global exige papel `admin`.
 
+As rotas `/api/v1/posts` e `/api/v1/posts/:id` não usam o redirect de páginas do middleware: os Route Handlers validam a sessão e retornam `401 UNAUTHORIZED` em JSON quando ausente. Páginas protegidas continuam redirecionando para `/login`. No cliente, só uma resposta `201` JSON com recurso `data` confirma a criação; nesse caso o item aparece no feed do escopo ativo e o formulário é limpo. Respostas de erro, redirects HTML ou falhas de rede mantêm o rascunho e exibem feedback acessível.
+
 `DELETE /api/v1/posts/:id` exige que o usuário autenticado seja o autor. A exclusão é lógica e responde `{ "data": { "id": "uuid", "deleted": true } }`; outro usuário, inclusive professor ou coordenação, recebe `403 FORBIDDEN`.
 
 Falhas de validação respondem `400 VALIDATION_ERROR`; sessão ausente responde `401 UNAUTHORIZED`; acesso a sala negado responde `403 FORBIDDEN_SCOPE`; publicação inexistente ou já excluída responde `404 NOT_FOUND`.

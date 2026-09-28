@@ -1,8 +1,9 @@
 'use client';
 
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient, type InfiniteData } from '@tanstack/react-query';
 import { useState, type FormEvent } from 'react';
-import type { ClassroomOption } from './types';
+import { parseCreatedPostResponse } from './post-client';
+import type { ClassroomOption, PostsPage } from './types';
 
 type PostFormProps = {
   classrooms: ClassroomOption[];
@@ -19,36 +20,48 @@ export function PostForm({ classrooms, canPostGlobal, defaultClassroomId }: Post
   );
   const [classroomId, setClassroomId] = useState(firstClassroomId);
   const [errorMessage, setErrorMessage] = useState('');
+  const queryKey = ['posts', scopeType === 'global' ? 'global' : classroomId] as const;
   const mutation = useMutation({
     mutationFn: async () => {
-      const response = await fetch('/api/v1/posts', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          content,
-          scopeType,
-          ...(scopeType === 'classroom' ? { classroomId } : {}),
-        }),
-      });
-      const result = await response.json();
-
-      if (!response.ok) {
-        throw new Error(result.error?.message ?? 'Não foi possível publicar.');
+      let response: Response;
+      try {
+        response = await fetch('/api/v1/posts', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            content,
+            scopeType,
+            ...(scopeType === 'classroom' ? { classroomId } : {}),
+          }),
+        });
+      } catch {
+        throw new Error('Não foi possível conectar ao servidor. Sua publicação continua salva neste formulário.');
       }
 
-      return result;
+      return parseCreatedPostResponse(response);
     },
-    onSuccess: async () => {
+    onSuccess: (createdPost) => {
       setContent('');
       setErrorMessage('');
-      await queryClient.invalidateQueries({ queryKey: ['posts'] });
+      queryClient.setQueryData<InfiniteData<PostsPage>>(queryKey, (current) => {
+        if (!current?.pages.length) return current;
+        const [firstPage, ...otherPages] = current.pages;
+        if (firstPage.data.some((post) => post.id === createdPost.id)) return current;
+
+        return {
+          ...current,
+          pages: [{ ...firstPage, data: [createdPost, ...firstPage.data] }, ...otherPages],
+        };
+      });
+      void queryClient.invalidateQueries({ queryKey });
     },
     onError: (error: Error) => setErrorMessage(error.message),
   });
 
-  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    await mutation.mutateAsync();
+    setErrorMessage('');
+    mutation.mutate();
   }
 
   const canSubmit =
