@@ -4,7 +4,7 @@ Modelo de dados estável da plataforma. Alterações por feature são propostas 
 
 ## Convenções
 
-- **SGBD:** PostgreSQL 15+
+- **SGBD:** PostgreSQL 15
 - **IDs:** UUID v4 (`gen_random_uuid()`)
 - **Timestamps:** `created_at`, `updated_at` em UTC (`timestamptz`)
 - **Soft delete:** `deleted_at` em entidades de conteúdo
@@ -98,8 +98,10 @@ CREATE TYPE member_role AS ENUM ('student', 'teacher');
 | deleted_at | timestamptz NULL | Soft delete |
 
 **Índices:**
-- `(classroom_id, created_at DESC)` — feed por sala
-- `(scope_type, created_at DESC)` — feed global
+- `(classroom_id, created_at DESC, id DESC)` — feed por sala com cursor estável
+- `(scope_type, created_at DESC, id DESC)` — feed global com cursor estável
+
+**Constraint:** `posts_scope_classroom_check` exige `classroom_id IS NULL` para `scope_type = 'global'` e `classroom_id IS NOT NULL` para `scope_type = 'classroom'`.
 
 ### bulletin_items
 
@@ -151,13 +153,13 @@ Toda entidade de conteúdo (`posts`, `bulletin_items`, `albums`) possui:
 - `scope_type`: `'global'` ou `'classroom'`
 - `classroom_id`: `NULL` quando global, FK quando por sala
 
-**Regra:** se `scope_type = 'classroom'`, então `classroom_id` é obrigatório.
+**Regra:** se `scope_type = 'classroom'`, então `classroom_id` é obrigatório. A migration de posts também aplica a constraint `posts_scope_classroom_check` no banco.
 
 ## Migrations
 
 ```bash
 # Criar migration
-cd packages/db && npx prisma migrate dev --name add_posts
+cd packages/db && npx prisma migrate dev --name implement_posts
 
 # Convenção de nome
 YYYYMMDD_descricao_curta

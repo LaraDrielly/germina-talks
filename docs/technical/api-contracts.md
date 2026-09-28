@@ -72,6 +72,35 @@ GET /api/v1/posts?cursor=<id>&limit=20&classroomId=<uuid>
 - `cursor`: ID do último item da página anterior
 - `hasMore: false` quando não há mais itens
 
+### Publicações
+
+`GET /api/v1/posts` exige sessão autenticada. Sem `classroomId`, retorna somente o feed global; com `classroomId`, retorna publicações da sala apenas para seus membros. Publicações removidas logicamente não são retornadas. A ordenação é `created_at DESC, id DESC`; `cursor` identifica o último post recebido e `limit` é 20 por padrão.
+
+Exemplo de resposta:
+
+```json
+{
+  "data": [
+    {
+      "id": "uuid",
+      "content": "Texto da publicação",
+      "scopeType": "classroom",
+      "classroomId": "uuid-da-sala",
+      "createdAt": "2026-09-28T12:00:00.000Z",
+      "author": { "id": "uuid", "name": "Ana Aluna", "role": "student", "avatarUrl": null },
+      "classroom": { "id": "uuid-da-sala", "name": "3º ano Tecnologia 2026", "schoolTrack": "tech" }
+    }
+  ],
+  "meta": { "cursor": "uuid", "hasMore": true, "viewerId": "uuid-do-usuario" }
+}
+```
+
+`POST /api/v1/posts` exige `content` (1 a 280 caracteres após trim) e `scopeType` (`global` ou `classroom`). `classroomId` é obrigatório para escopo de sala e proibido para o global. A resposta de sucesso é `201` com `{ "data": <post> }`. Publicação em sala exige membership; publicação global exige papel `admin`.
+
+`DELETE /api/v1/posts/:id` exige que o usuário autenticado seja o autor. A exclusão é lógica e responde `{ "data": { "id": "uuid", "deleted": true } }`; outro usuário, inclusive professor ou coordenação, recebe `403 FORBIDDEN`.
+
+Falhas de validação respondem `400 VALIDATION_ERROR`; sessão ausente responde `401 UNAUTHORIZED`; acesso a sala negado responde `403 FORBIDDEN_SCOPE`; publicação inexistente ou já excluída responde `404 NOT_FOUND`.
+
 ### Offset (admin, futuro)
 
 ```
@@ -86,7 +115,7 @@ GET /api/v1/admin/users?page=1&limit=20
 | `/classrooms` | GET | organization/classrooms |
 | `/classrooms/:id/members` | GET | organization/classrooms |
 | `/posts` | GET, POST | communication/posts |
-| `/posts/:id` | GET, DELETE | communication/posts |
+| `/posts/:id` | DELETE | communication/posts |
 | `/bulletin` | GET, POST | communication/bulletin-board |
 | `/bulletin/:id` | GET, PATCH, DELETE | communication/bulletin-board |
 | `/bulletin/:id/pin` | POST, DELETE | communication/bulletin-board |

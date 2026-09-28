@@ -24,13 +24,21 @@ enum ScopeType {
   classroom
 }
 
+enum MemberRole {
+  student
+  teacher
+}
+
 model User {
-  id        String   @id @default(uuid()) @db.Uuid
-  email     String   @unique
-  name      String
-  role      UserRole @default(student)
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+  id          String            @id @default(uuid()) @db.Uuid
+  email       String            @unique
+  name        String
+  role        UserRole          @default(student)
+  avatarUrl   String?           @map("avatar_url")
+  createdAt   DateTime          @default(now()) @map("created_at")
+  updatedAt   DateTime          @updatedAt @map("updated_at")
+  memberships ClassroomMember[]
+  posts       Post[]
 
   @@map("users")
 }
@@ -42,6 +50,38 @@ model Classroom {
   schoolTrack SchoolTrack @map("school_track")
   year       Int
   createdAt  DateTime    @default(now()) @map("created_at")
+  memberships ClassroomMember[]
+  posts      Post[]
 
   @@map("classrooms")
+}
+
+model ClassroomMember {
+  userId      String     @map("user_id") @db.Uuid
+  classroomId String     @map("classroom_id") @db.Uuid
+  roleInClass MemberRole @map("role_in_class")
+  joinedAt    DateTime   @default(now()) @map("joined_at")
+  user        User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  classroom   Classroom  @relation(fields: [classroomId], references: [id], onDelete: Cascade)
+
+  @@id([userId, classroomId])
+  @@index([classroomId, roleInClass])
+  @@map("classroom_members")
+}
+
+model Post {
+  id          String    @id @default(uuid()) @db.Uuid
+  authorId    String    @map("author_id") @db.Uuid
+  content     String    @db.VarChar(280)
+  scopeType   ScopeType @map("scope_type")
+  classroomId String?   @map("classroom_id") @db.Uuid
+  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt   DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt   DateTime? @map("deleted_at") @db.Timestamptz(6)
+  author      User      @relation(fields: [authorId], references: [id], onDelete: Restrict)
+  classroom   Classroom? @relation(fields: [classroomId], references: [id], onDelete: Restrict)
+
+  @@index([scopeType, createdAt(sort: Desc), id(sort: Desc)])
+  @@index([classroomId, createdAt(sort: Desc), id(sort: Desc)])
+  @@map("posts")
 }

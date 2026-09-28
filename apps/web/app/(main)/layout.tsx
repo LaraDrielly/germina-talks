@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { QueryProvider } from '../../components/providers/query-provider';
 
 const navigation = [
   { href: '/feed', label: 'Feed' },
@@ -66,7 +67,9 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
             </div>
           </header>
 
-          <main className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm md:p-6">{children}</main>
+          <main className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm md:p-6">
+            <QueryProvider>{children}</QueryProvider>
+          </main>
         </div>
       </div>
 
