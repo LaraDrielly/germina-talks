@@ -18,7 +18,7 @@
 - [x] 3.5 Implementar listagem e criação de posts com escopo; testar validação de `scopeType`/`classroomId` e autorização.
 - [x] 3.6 Implementar listagem e criação de recados com escopo; testar validação de `scopeType`/`classroomId` e autorização.
 - [x] 3.7 Implementar listagem e criação de álbuns com escopo; testar validação de `scopeType`/`classroomId` e autorização.
-- [ ] 3.8 Garantir que handlers das rotas de sala neguem acesso a não-membros e permitam coordenação; cobrir feed, mural e fotos com testes.
+- [x] 3.8 Garantir que handlers das rotas de sala neguem acesso a não-membros e permitam coordenação; cobrir feed, mural e fotos com testes.
 
 ## 4. Frontend
 
