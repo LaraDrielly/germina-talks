@@ -23,7 +23,7 @@
 ## 4. Frontend
 
 - [x] 4.1 Trocar salas fixas por dados do usuário, agrupados por frente e com cores do design system; verificar estados com e sem salas.
-- [ ] 4.2 Implementar páginas `/salas/[id]/feed`, `/mural` e `/fotos` com checagem de associação; verificar navegação e acesso negado.
+- [x] 4.2 Implementar páginas `/salas/[id]/feed`, `/mural` e `/fotos` com checagem de associação; verificar navegação e acesso negado.
 - [ ] 4.3 Implementar `ScopeBadge` global e por sala com cores corretas; cobrir os estados com teste de componente.
 - [ ] 4.4 Incluir seleção explícita de escopo nos formulários de post, recado e álbum, usando a sala atual como padrão; testar seleção e validação.
 
