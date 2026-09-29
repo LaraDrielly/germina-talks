@@ -15,9 +15,9 @@
 - [x] 3.2 Implementar `GET/POST /api/v1/classrooms` e testar listagem por membro, listagem global e criação restrita a admin.
 - [x] 3.3 Implementar leitura e gerenciamento administrativo de membros; testar inclusão, remoção, duplicidade e negação para não-admin.
 - [x] 3.4 Implementar validação e filtros reutilizáveis de escopo; testar conteúdo global, conteúdo da sala para membro e bloqueio de não-membro.
-- [ ] 3.5 Implementar listagem e criação de posts com escopo; testar validação de `scopeType`/`classroomId` e autorização.
-- [ ] 3.6 Implementar listagem e criação de recados com escopo; testar validação de `scopeType`/`clasConfomre sroomId` e autorização.
-- [ ] 3.7 Implementar listagem e criação de álbuns com escopo; testar validação de `scopeType`/`classroomId` e autorização.
+- [x] 3.5 Implementar listagem e criação de posts com escopo; testar validação de `scopeType`/`classroomId` e autorização.
+- [x] 3.6 Implementar listagem e criação de recados com escopo; testar validação de `scopeType`/`classroomId` e autorização.
+- [x] 3.7 Implementar listagem e criação de álbuns com escopo; testar validação de `scopeType`/`classroomId` e autorização.
 - [ ] 3.8 Garantir que handlers das rotas de sala neguem acesso a não-membros e permitam coordenação; cobrir feed, mural e fotos com testes.
 
 ## 4. Frontend
