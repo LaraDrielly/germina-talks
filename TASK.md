@@ -24,3 +24,4 @@
 - [x] Configurar Vitest para testes unitários
 - [x] Configurar Auth.js com domínio institucional
 - [x] Implementar layout base e navegação do App Router
+
