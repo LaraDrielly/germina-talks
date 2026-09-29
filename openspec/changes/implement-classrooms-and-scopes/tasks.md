@@ -13,7 +13,7 @@
 
 - [x] 3.1 Implementar serviços de listagem e criação de salas com regras de membro/admin; cobrir os casos com testes unitários.
 - [x] 3.2 Implementar `GET/POST /api/v1/classrooms` e testar listagem por membro, listagem global e criação restrita a admin.
-- [ ] 3.3 Implementar leitura e gerenciamento administrativo de membros; testar inclusão, remoção, duplicidade e negação para não-admin.
+- [x] 3.3 Implementar leitura e gerenciamento administrativo de membros; testar inclusão, remoção, duplicidade e negação para não-admin.
 - [ ] 3.4 Implementar validação e filtros reutilizáveis de escopo; testar conteúdo global, conteúdo da sala para membro e bloqueio de não-membro.
 - [ ] 3.5 Implementar listagem e criação de posts com escopo; testar validação de `scopeType`/`classroomId` e autorização.
 - [ ] 3.6 Implementar listagem e criação de recados com escopo; testar validação de `scopeType`/`clasConfomre sroomId` e autorização.
