@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { getClassroomMembers, addMemberToClassroom, removeMemberFromClassroom } from '@/lib/services/classroom';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { authOptions } from '@/auth';
 
 export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
   const session = await getServerSession(authOptions);

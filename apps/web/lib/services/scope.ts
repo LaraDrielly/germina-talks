@@ -1,4 +1,5 @@
-import { prisma } from '../db/prisma';
+import { prisma } from '@/lib/db/prisma';
+import { ScopeType } from '@prisma/client';
 
 export async function checkUserAccessToClassroom(userId: string, classroomId: string) {
   const membership = await prisma.classroomMember.findUnique({
@@ -13,21 +14,20 @@ export async function checkUserAccessToClassroom(userId: string, classroomId: st
 }
 
 export function getScopeFilter(
-  scopeType: 'global' | 'classroom',
+  scopeType: ScopeType,
   classroomId?: string | null,
-  userId?: string,
 ) {
   if (scopeType === 'global') {
-    return { scopeType: 'global' };
+    return { scopeType: 'global' as const };
   }
 
   if (scopeType === 'classroom' && classroomId) {
     return {
-      scopeType: 'classroom',
+      scopeType: 'classroom' as const,
       classroomId,
     };
   }
 
   // Default to global if invalid or empty
-  return { scopeType: 'global' };
+  return { scopeType: 'global' as const };
 }

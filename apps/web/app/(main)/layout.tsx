@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { getServerSession } from 'next-auth';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { authOptions } from '@/auth';
 import { getClassroomsForUser } from '@/lib/services/classroom';
 import { SchoolTrack } from '@prisma/client';
 
@@ -23,10 +23,11 @@ export default async function MainLayout({ children }: { children: React.ReactNo
   const classrooms = session?.user ? await getClassroomsForUser(session.user.id) : [];
 
   const groupedClassrooms = classrooms.reduce((acc, classroom) => {
-    if (!acc[classroom.schoolTrack]) {
-      acc[classroom.schoolTrack] = [];
+    const track = classroom.schoolTrack as SchoolTrack;
+    if (!acc[track]) {
+      acc[track] = [];
     }
-    acc[classroom.schoolTrack].push(classroom);
+    acc[track].push(classroom);
     return acc;
   }, {} as Record<SchoolTrack, typeof classrooms>);
 
@@ -84,7 +85,7 @@ export default async function MainLayout({ children }: { children: React.ReactNo
                 Buscar
               </button>
               <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-sm font-semibold text-white">
-                {session?.user.name?.split(' ').map(n => n[0]).join('')}
+                {session?.user.name?.split(' ').map((n: string) => n[0]).join('')}
               </div>
             </div>
           </header>

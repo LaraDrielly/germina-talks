@@ -1,4 +1,4 @@
-import { prisma } from '../db/prisma';
+import { prisma } from '@/lib/db/prisma';
 import { checkUserAccessToClassroom, getScopeFilter } from './scope';
 import { ScopeType } from '@prisma/client';
 
