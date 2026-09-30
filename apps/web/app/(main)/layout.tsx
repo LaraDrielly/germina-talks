@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/auth';
 import { getClassroomsForUser } from '@/lib/services/classroom';
+import { QueryProvider } from '@/components/providers/query-provider';
 import { SchoolTrack } from '@prisma/client';
 
 const navigation = [
@@ -20,16 +21,20 @@ const trackColors: Record<SchoolTrack, string> = {
 
 export default async function MainLayout({ children }: { children: React.ReactNode }) {
   const session = await getServerSession(authOptions);
-  const classrooms = session?.user ? await getClassroomsForUser(session.user.id) : [];
+  const userId = session?.user?.id;
+  const classrooms = userId ? await getClassroomsForUser(userId) : [];
 
-  const groupedClassrooms = classrooms.reduce((acc, classroom) => {
-    const track = classroom.schoolTrack as SchoolTrack;
-    if (!acc[track]) {
-      acc[track] = [];
-    }
-    acc[track].push(classroom);
-    return acc;
-  }, {} as Record<SchoolTrack, typeof classrooms>);
+  const groupedClassrooms = classrooms.reduce(
+    (acc, classroom) => {
+      const track = classroom.schoolTrack as SchoolTrack;
+      if (!acc[track]) {
+        acc[track] = [];
+      }
+      acc[track].push(classroom);
+      return acc;
+    },
+    {} as Record<SchoolTrack, typeof classrooms>,
+  );
 
   return (
     <div className="min-h-screen bg-slate-100 text-slate-800">
@@ -90,7 +95,9 @@ export default async function MainLayout({ children }: { children: React.ReactNo
             </div>
           </header>
 
-          <main className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm md:p-6">{children}</main>
+          <main className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm md:p-6">
+            <QueryProvider>{children}</QueryProvider>
+          </main>
         </div>
       </div>
 

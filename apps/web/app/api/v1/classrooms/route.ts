@@ -5,7 +5,7 @@ import { authOptions } from '@/auth';
 
 export async function GET(req: NextRequest) {
   const session = await getServerSession(authOptions);
-  if (!session?.user) {
+  if (!session?.user?.id) {
     return NextResponse.json({ error: 'Não autorizado' }, { status: 401 });
   }
 
@@ -23,7 +23,7 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   const session = await getServerSession(authOptions);
-  if (!session?.user || session.user.role !== 'admin') {
+  if (!session?.user?.id || session.user.role !== 'admin') {
     return NextResponse.json({ error: 'Apenas administradores podem criar salas' }, { status: 403 });
   }
 
