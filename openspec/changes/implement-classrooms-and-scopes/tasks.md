@@ -29,5 +29,5 @@
 
 ## 5. Docs
 
-- [ ] 5.1 Atualizar `docs/technical/database.md` e `docs/technical/api-contracts.md` para refletir o schema e endpoints implementados; conferir nomes e contratos contra o código.
-- [ ] 5.2 Executar lint, typecheck, testes e build do workspace; registrar os comandos aprovados e corrigir regressões desta change.Continue
+- [x] 5.1 Atualizar `docs/technical/database.md` e `docs/technical/api-contracts.md` para refletir o schema e endpoints implementados; conferir nomes e contratos contra o código.
+- [x] 5.2 Executar lint, typecheck, testes e build do workspace; registrar os comandos aprovados e corrigir regressões desta change.Continue

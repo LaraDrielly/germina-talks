@@ -1,4 +1,7 @@
-## ADDED Requirements
+## Purpose
+Implementar gerenciamento de salas e membros pelos administradores (coordenação).
+
+## Requirements
 
 ### Requirement: Coordenação gerencia membros das salas
 A coordenação MUST conseguir associar alunos e professores a uma sala e remover membros existentes. Cada associação MUST registrar se o membro participa como aluno ou professor. Usuários sem papel global de coordenação MUST ser impedidos de alterar essas associações.
