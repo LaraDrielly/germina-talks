@@ -64,13 +64,20 @@ Convenções REST entre frontend e backend. Endpoints específicos de cada featu
 
 ### Cursor (feeds)
 
+**Contrato canônico do feed** (global e sala):
+
 ```
 GET /api/v1/posts?cursor=<id>&limit=20&classroomId=<uuid>
 ```
 
+- Sem `classroomId`: feed global (apenas publicações `scopeType=global`)
+- Com `classroomId`: feed da sala; exige membership
 - `limit`: padrão 20, máximo 50
 - `cursor`: ID do último item da página anterior
 - `hasMore: false` quando não há mais itens
+- Resposta: `{ data, meta: { cursor, hasMore, viewerId } }`
+
+> `GET|POST /api/v1/classrooms/:id/feed` **não é canônico** — a UI do feed usa apenas `/api/v1/posts`.
 
 ### Offset (admin, futuro)
 
@@ -83,10 +90,11 @@ GET /api/v1/admin/users?page=1&limit=20
 | Recurso | Métodos | Spec |
 |---------|---------|------|
 | `/auth/session` | GET | identity/auth |
-| `/classrooms` | GET | organization/classrooms |
-| `/classrooms/:id/members` | GET | organization/classrooms |
-| `/posts` | GET, POST | communication/posts |
-| `/posts/:id` | GET, DELETE | communication/posts |
+| `/classrooms` | GET, POST | organization/classrooms |
+| `/classrooms/:id/members` | GET, POST, DELETE | organization/classrooms |
+| `/classrooms/:id/feed` | GET, POST | legado / não canônico (usar `/posts`) |
+| `/posts` | GET, POST | communication/posts (feed canônico) |
+| `/posts/:id` | DELETE | communication/posts |
 | `/bulletin` | GET, POST | communication/bulletin-board |
 | `/bulletin/:id` | GET, PATCH, DELETE | communication/bulletin-board |
 | `/bulletin/:id/pin` | POST, DELETE | communication/bulletin-board |
