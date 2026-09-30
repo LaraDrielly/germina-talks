@@ -32,6 +32,27 @@ class MockRepository {
         ) || null
       );
     },
+    upsert: async (args: {
+      where: { email: string };
+      update: Partial<MockUser>;
+      create: Omit<MockUser, 'createdAt' | 'updatedAt' | 'id'> & { id?: string };
+    }) => {
+      const existing = this.users.find((u) => u.email === args.where.email);
+      if (existing) {
+        Object.assign(existing, args.update, { updatedAt: new Date() });
+        return existing;
+      }
+      const created: MockUser = {
+        id: args.create.id || `user-${Date.now()}`,
+        email: args.create.email,
+        name: args.create.name,
+        role: args.create.role,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+      this.users.push(created);
+      return created;
+    },
     create: async (args: { data: Omit<MockUser, 'createdAt' | 'updatedAt' | 'id'> & { id?: string } }) => {
       const newUser: MockUser = {
         id: args.data.id || `user-${Date.now()}`,
@@ -119,6 +140,25 @@ class MockRepository {
         }));
       }
 
+      if (args?.include?.classroom) {
+        const select = args.include.classroom.select as
+          | { id?: boolean; name?: boolean; schoolTrack?: boolean }
+          | undefined;
+        return result.map((m) => {
+          const classroom = this.classrooms.find((c) => c.id === m.classroomId) || null;
+          if (!classroom) return { ...m, classroom: null };
+          if (!select) return { ...m, classroom };
+          return {
+            ...m,
+            classroom: {
+              ...(select.id ? { id: classroom.id } : {}),
+              ...(select.name ? { name: classroom.name } : {}),
+              ...(select.schoolTrack ? { schoolTrack: classroom.schoolTrack } : {}),
+            },
+          };
+        });
+      }
+
       return result;
     },
     findUnique: async (args: { where: { userId_classroomId: { userId: string; classroomId: string } } }) => {
@@ -171,7 +211,14 @@ class MockRepository {
 
   // Post
   post = {
-    findMany: async (args?: { where?: any; orderBy?: any }) => {
+    findMany: async (args?: {
+      where?: any;
+      orderBy?: any;
+      include?: any;
+      cursor?: { id: string };
+      skip?: number;
+      take?: number;
+    }) => {
       let result = [...this.posts];
 
       if (args?.where) {
@@ -181,15 +228,55 @@ class MockRepository {
         if (args.where.classroomId !== undefined) {
           result = result.filter((p) => p.classroomId === args.where.classroomId);
         }
+        if (args.where.deletedAt === null) {
+          result = result.filter((p) => p.deletedAt === null);
+        }
       }
 
-      if (args?.orderBy?.createdAt === 'desc') {
-        result.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+      const orderBy = Array.isArray(args?.orderBy) ? args?.orderBy : args?.orderBy ? [args.orderBy] : [];
+      result.sort((a, b) => {
+        for (const order of orderBy) {
+          if (order.createdAt === 'desc') {
+            const diff = b.createdAt.getTime() - a.createdAt.getTime();
+            if (diff !== 0) return diff;
+          }
+          if (order.id === 'desc') {
+            if (a.id < b.id) return 1;
+            if (a.id > b.id) return -1;
+          }
+        }
+        return b.createdAt.getTime() - a.createdAt.getTime();
+      });
+
+      if (args?.cursor?.id) {
+        const index = result.findIndex((p) => p.id === args.cursor!.id);
+        if (index >= 0) {
+          result = result.slice(index + (args.skip ?? 0));
+        } else {
+          result = [];
+        }
+      }
+
+      if (typeof args?.take === 'number') {
+        result = result.slice(0, args.take);
+      }
+
+      if (args?.include) {
+        return result.map((p) => this.enrichPost(p, args.include));
       }
 
       return result;
     },
-    create: async (args: { data: Omit<MockPost, 'createdAt' | 'updatedAt' | 'id' | 'deletedAt'> & { id?: string } }) => {
+    findUnique: async (args: { where: { id: string }; include?: any }) => {
+      const post = this.posts.find((p) => p.id === args.where.id) || null;
+      if (!post) return null;
+      if (args.include) return this.enrichPost(post, args.include);
+      return post;
+    },
+    create: async (args: {
+      data: Omit<MockPost, 'createdAt' | 'updatedAt' | 'id' | 'deletedAt'> & { id?: string };
+      include?: any;
+    }) => {
       const newPost: MockPost = {
         id: args.data.id || `post-${Date.now()}`,
         authorId: args.data.authorId,
@@ -201,9 +288,51 @@ class MockRepository {
         deletedAt: null,
       };
       this.posts.push(newPost);
+      if (args.include) return this.enrichPost(newPost, args.include);
       return newPost;
     },
+    update: async (args: { where: { id: string }; data: Partial<MockPost> }) => {
+      const index = this.posts.findIndex((p) => p.id === args.where.id);
+      if (index < 0) throw new Error('Post not found');
+      this.posts[index] = {
+        ...this.posts[index],
+        ...args.data,
+        updatedAt: new Date(),
+      };
+      return this.posts[index];
+    },
   };
+
+  private enrichPost(post: MockPost, include: any) {
+    const item: any = { ...post };
+    if (include.author) {
+      const author = this.users.find((u) => u.id === post.authorId);
+      if (author && include.author.select) {
+        item.author = {
+          ...(include.author.select.id ? { id: author.id } : {}),
+          ...(include.author.select.name ? { name: author.name } : {}),
+          ...(include.author.select.role ? { role: author.role } : {}),
+        };
+      } else {
+        item.author = author || null;
+      }
+    }
+    if (include.classroom) {
+      const classroom = post.classroomId
+        ? this.classrooms.find((c) => c.id === post.classroomId) || null
+        : null;
+      if (classroom && include.classroom.select) {
+        item.classroom = {
+          ...(include.classroom.select.id ? { id: classroom.id } : {}),
+          ...(include.classroom.select.name ? { name: classroom.name } : {}),
+          ...(include.classroom.select.schoolTrack ? { schoolTrack: classroom.schoolTrack } : {}),
+        };
+      } else {
+        item.classroom = classroom;
+      }
+    }
+    return item;
+  }
 
   // BulletinItem
   bulletinItem = {
