@@ -1,0 +1,102 @@
+[
+  {
+    "id": "e1010001-0001-4000-8000-000000000001",
+    "authorId": "5d2e6f70-8192-4ab4-bdc5-4e5f60718293",
+    "content": "Bem-vindos ao Germina Talks! Este é o espaço da nossa comunidade escolar. 🌱",
+    "scopeType": "global",
+    "classroomId": null,
+    "createdAt": "2026-08-04T11:00:00.000Z",
+    "updatedAt": "2026-08-04T11:00:00.000Z",
+    "deletedAt": null
+  },
+  {
+    "id": "e1010001-0001-4000-8000-000000000002",
+    "authorId": "5d2e6f70-8192-4ab4-bdc5-4e5f60718293",
+    "content": "Semana da Família começa na segunda. Programação no mural institucional.",
+    "scopeType": "global",
+    "classroomId": null,
+    "createdAt": "2026-09-11T09:30:00.000Z",
+    "updatedAt": "2026-09-11T09:30:00.000Z",
+    "deletedAt": null
+  },
+  {
+    "id": "e1010001-0001-4000-8000-000000000003",
+    "authorId": "7c8a1e2f-4b3d-4a91-9c12-0f1e2d3c4b5a",
+    "content": "Alguém tem o material da aula de hoje?",
+    "scopeType": "classroom",
+    "classroomId": "a11b22c3-33d4-4e55-8666-777788889901",
+    "createdAt": "2026-09-14T12:05:00.000Z",
+    "updatedAt": "2026-09-14T12:05:00.000Z",
+    "deletedAt": null
+  },
+  {
+    "id": "e1010001-0001-4000-8000-000000000004",
+    "authorId": "2a9b3c4d-5e6f-4781-8a92-1b2c3d4e5f60",
+    "content": "Mandei no Classroom, Lara. É o PDF de modelagem de dados.",
+    "scopeType": "classroom",
+    "classroomId": "a11b22c3-33d4-4e55-8666-777788889901",
+    "createdAt": "2026-09-14T12:18:00.000Z",
+    "updatedAt": "2026-09-14T12:18:00.000Z",
+    "deletedAt": null
+  },
+  {
+    "id": "e1010001-0001-4000-8000-000000000005",
+    "authorId": "3b0c4d5e-6f70-4892-9ba3-2c3d4e5f6071",
+    "content": "Turma, lab de banco amanhã na sala 204. Levem o notebook.",
+    "scopeType": "classroom",
+    "classroomId": "a11b22c3-33d4-4e55-8666-777788889901",
+    "createdAt": "2026-09-13T16:40:00.000Z",
+    "updatedAt": "2026-09-13T16:40:00.000Z",
+    "deletedAt": null
+  },
+  {
+    "id": "e1010001-0001-4000-8000-000000000006",
+    "authorId": "7c8a1e2f-4b3d-4a91-9c12-0f1e2d3c4b5a",
+    "content": "Reunião do Projeto Integrador hoje às 16h na biblioteca.",
+    "scopeType": "classroom",
+    "classroomId": "d44e55f6-6607-4188-b999-aaaabbbbc234",
+    "createdAt": "2026-09-12T10:22:00.000Z",
+    "updatedAt": "2026-09-12T10:22:00.000Z",
+    "deletedAt": null
+  },
+  {
+    "id": "e1010001-0001-4000-8000-000000000007",
+    "authorId": "3b0c4d5e-6f70-4892-9ba3-2c3d4e5f6071",
+    "content": "Entrega da sprint 1 do PI: sexta, até 23h59 no repositório.",
+    "scopeType": "classroom",
+    "classroomId": "d44e55f6-6607-4188-b999-aaaabbbbc234",
+    "createdAt": "2026-09-10T18:00:00.000Z",
+    "updatedAt": "2026-09-10T18:00:00.000Z",
+    "deletedAt": null
+  },
+  {
+    "id": "e1010001-0001-4000-8000-000000000008",
+    "authorId": "4c1d5e6f-7081-49a3-acb4-3d4e5f607182",
+    "content": "Primeiro dia na fábrica: fardamento completo e crachá na entrada.",
+    "scopeType": "classroom",
+    "classroomId": "b22c33d4-44e5-4f66-9777-88889999a012",
+    "createdAt": "2026-09-08T07:45:00.000Z",
+    "updatedAt": "2026-09-08T07:45:00.000Z",
+    "deletedAt": null
+  },
+  {
+    "id": "e1010001-0001-4000-8000-000000000009",
+    "authorId": "4c1d5e6f-7081-49a3-acb4-3d4e5f607182",
+    "content": "Case da aula de marketing: leiam o briefing antes de quinta.",
+    "scopeType": "classroom",
+    "classroomId": "c33d44e5-55f6-4077-a888-9999aaaab123",
+    "createdAt": "2026-09-09T14:12:00.000Z",
+    "updatedAt": "2026-09-09T14:12:00.000Z",
+    "deletedAt": null
+  },
+  {
+    "id": "e1010001-0001-4000-8000-00000000000a",
+    "authorId": "2a9b3c4d-5e6f-4781-8a92-1b2c3d4e5f60",
+    "content": "Post apagado pelo autor — não deve aparecer no feed.",
+    "scopeType": "classroom",
+    "classroomId": "a11b22c3-33d4-4e55-8666-777788889901",
+    "createdAt": "2026-09-07T20:00:00.000Z",
+    "updatedAt": "2026-09-07T20:10:00.000Z",
+    "deletedAt": "2026-09-07T20:10:00.000Z"
+  }
+]

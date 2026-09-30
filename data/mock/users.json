@@ -1,0 +1,47 @@
+[
+  {
+    "id": "7c8a1e2f-4b3d-4a91-9c12-0f1e2d3c4b5a",
+    "email": "lara.silva@institutojef.org.br",
+    "name": "Lara Silva",
+    "role": "student",
+    "avatarUrl": "https://i.pravatar.cc/150?u=lara.silva",
+    "createdAt": "2026-02-10T12:00:00.000Z",
+    "updatedAt": "2026-02-10T12:00:00.000Z"
+  },
+  {
+    "id": "2a9b3c4d-5e6f-4781-8a92-1b2c3d4e5f60",
+    "email": "pedro.almeida@institutojef.org.br",
+    "name": "Pedro Almeida",
+    "role": "student",
+    "avatarUrl": "https://i.pravatar.cc/150?u=pedro.almeida",
+    "createdAt": "2026-02-10T12:05:00.000Z",
+    "updatedAt": "2026-02-10T12:05:00.000Z"
+  },
+  {
+    "id": "3b0c4d5e-6f70-4892-9ba3-2c3d4e5f6071",
+    "email": "marina.costa@institutojef.org.br",
+    "name": "Marina Costa",
+    "role": "teacher",
+    "avatarUrl": "https://i.pravatar.cc/150?u=marina.costa",
+    "createdAt": "2026-01-15T09:00:00.000Z",
+    "updatedAt": "2026-01-15T09:00:00.000Z"
+  },
+  {
+    "id": "4c1d5e6f-7081-49a3-acb4-3d4e5f607182",
+    "email": "roberto.lima@institutojef.org.br",
+    "name": "Roberto Lima",
+    "role": "teacher",
+    "avatarUrl": "https://i.pravatar.cc/150?u=roberto.lima",
+    "createdAt": "2026-01-15T09:10:00.000Z",
+    "updatedAt": "2026-01-15T09:10:00.000Z"
+  },
+  {
+    "id": "5d2e6f70-8192-4ab4-bdc5-4e5f60718293",
+    "email": "ana.ferreira@institutojef.org.br",
+    "name": "Ana Beatriz Ferreira",
+    "role": "admin",
+    "avatarUrl": "https://i.pravatar.cc/150?u=ana.ferreira",
+    "createdAt": "2026-01-08T08:00:00.000Z",
+    "updatedAt": "2026-01-08T08:00:00.000Z"
+  }
+]
