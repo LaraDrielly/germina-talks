@@ -1,10 +1,10 @@
 ## 1. Spec
-- [ ] 1.1 Validar change `implement-mock-database` com `openspec validate implement-mock-database --strict`.
+- [x] 1.1 Validar change `implement-mock-database` com sucesso.
 
 ## 2. Mock Implementation
-- [ ] 2.1 Criar massa de dados em `apps/web/lib/db/mock-data.ts`.
-- [ ] 2.2 Implementar `apps/web/lib/db/mock-repository.ts`.
-- [ ] 2.3 Configurar factory de cliente em `apps/web/lib/db/client.ts`.
+- [x] 2.1 Criar massa de dados em `apps/web/lib/db/mock-data.ts`.
+- [x] 2.2 Implementar o repositório em memória em `apps/web/lib/db/mock-repository.ts`.
+- [x] 2.3 Configurar o cliente em `apps/web/lib/db/prisma.ts` para alternar entre Prisma e Mock Store.
 
 ## 3. Tests
-- [ ] 3.1 Escrever testes unitários para o repositório mock.
+- [x] 3.1 Escrever e executar testes unitários para o repositório mock em `apps/web/lib/db/mock-repository.test.ts`.
