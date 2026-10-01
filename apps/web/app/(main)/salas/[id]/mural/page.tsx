@@ -1,4 +1,4 @@
-import { redirect } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
 import { BulletinBoard } from '@/components/bulletin-board';
 import {
   findAccessibleBulletins,
@@ -6,18 +6,21 @@ import {
   getBulletinIdentity,
 } from '@/lib/bulletin';
 
-export default async function MuralPage() {
+type PageProps = { params: Promise<{ id: string }> };
+
+export default async function ClassroomMuralPage({ params }: PageProps) {
   const identity = await getBulletinIdentity();
   if (!identity) redirect('/login');
 
-  let classrooms: Awaited<ReturnType<typeof getBulletinClassrooms>> = [];
+  const { id } = await params;
+  const classrooms = await getBulletinClassrooms(identity);
+  const classroom = classrooms.find((item) => item.id === id);
+  if (!classroom) notFound();
+
   let items: Awaited<ReturnType<typeof findAccessibleBulletins>> = [];
   let loadError = false;
   try {
-    [classrooms, items] = await Promise.all([
-      getBulletinClassrooms(identity),
-      findAccessibleBulletins(identity),
-    ]);
+    items = await findAccessibleBulletins(identity, { classroomId: id });
   } catch {
     loadError = true;
   }
@@ -33,15 +36,15 @@ export default async function MuralPage() {
         expiresAt: item.expiresAt?.toISOString() ?? null,
         createdAt: item.createdAt.toISOString(),
         canPin: identity.role === 'admin' || (
-          identity.role === 'teacher' && item.classroomId !== null &&
-          classrooms.some((classroom) => classroom.id === item.classroomId && classroom.roleInClass === 'teacher')
+          identity.role === 'teacher' && classroom.roleInClass === 'teacher'
         ),
         author: item.author,
         classroom: item.classroom,
       }))}
-      classrooms={classrooms.map(({ id, name, schoolTrack, roleInClass }) => ({ id, name, schoolTrack, roleInClass }))}
+      classrooms={classrooms.map(({ id: classroomId, name, schoolTrack, roleInClass }) => ({ id: classroomId, name, schoolTrack, roleInClass }))}
       role={identity.role}
       loadError={loadError}
+      targetClassroom={{ id: classroom.id, name: classroom.name, schoolTrack: classroom.schoolTrack, roleInClass: classroom.roleInClass }}
     />
   );
 }
