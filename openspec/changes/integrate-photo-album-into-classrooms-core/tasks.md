@@ -4,14 +4,14 @@
 
 ## 1. Spec, archives e baseline
 
-- [ ] 1.1 Confirmar delta de `communication/photo-album` contra o design (API `/api/v1`, membership, moderação, sem forjar identidade) e marcar inconsistências se houver
+- [x] 1.1 Confirmar delta de `communication/photo-album` contra o design (API `/api/v1`, membership, moderação, sem forjar identidade) e marcar inconsistências se houver
 - [x] 1.2 Copiar intactos de `origin/feat/photo-album-and-moderation` os archives `2026-09-30-photo-album` e `2026-09-30-photo-album-local-upload` para `openspec/changes/archive/`; verificar que as pastas e `.openspec.yaml` existem e batem com a origem
 
 ## 2. Database
 
-- [ ] 2.1 Estender schema Prisma: enum `ContentStatus`, model `Photo`, campos de moderação em `Album`, relação `photos`; verificar com `prisma validate`
-- [ ] 2.2 Criar e aplicar migration `add_album_photos_and_moderation`; verificar tabelas/colunas no Postgres
-- [ ] 2.3 Atualizar seed com álbuns/fotos de exemplo aprovadas; verificar `db:seed` idempotente
+- [x] 2.1 Estender schema Prisma: enum `ContentStatus`, model `Photo`, campos de moderação em `Album`, relação `photos`; verificar com `prisma validate`
+- [x] 2.2 Criar e aplicar migration `add_album_photos_and_moderation`; verificar tabelas/colunas no Postgres
+- [x] 2.3 Atualizar seed com álbuns/fotos de exemplo aprovadas; verificar `db:seed` idempotente
 - [ ] 2.4 Estender mock repository (album/photo CRUD + filtros de status/membership) e testes; verificar suite mock passando
 
 ## 3. Backend

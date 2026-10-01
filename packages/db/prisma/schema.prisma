@@ -29,6 +29,12 @@ enum MemberRole {
   teacher
 }
 
+enum ContentStatus {
+  pending
+  approved
+  rejected
+}
+
 model User {
   id        String   @id @default(uuid()) @db.Uuid
   email     String   @unique
@@ -39,7 +45,10 @@ model User {
   memberships ClassroomMember[]
   posts     Post[]
   bulletins BulletinItem[]
-  albums    Album[]
+  albums    Album[]  @relation("AlbumCreatedBy")
+  moderatedAlbums Album[] @relation("AlbumModeratedBy")
+  uploadedPhotos Photo[] @relation("PhotoUploadedBy")
+  moderatedPhotos Photo[] @relation("PhotoModeratedBy")
 
   @@map("users")
 }
@@ -109,17 +118,42 @@ model BulletinItem {
 }
 
 model Album {
-  id          String     @id @default(uuid()) @db.Uuid
-  title       String     @db.VarChar(120)
-  description String?    @db.Text
-  scopeType   ScopeType  @map("scope_type")
-  classroomId String?    @db.Uuid @map("classroom_id")
-  createdBy   String     @db.Uuid @map("created_by")
-  createdAt   DateTime   @default(now()) @map("created_at")
-  updatedAt   DateTime   @updatedAt @map("updated_at")
-  creator     User       @relation(fields: [createdBy], references: [id], onDelete: Restrict)
-  classroom   Classroom? @relation(fields: [classroomId], references: [id], onDelete: Restrict)
+  id          String        @id @default(uuid()) @db.Uuid
+  title       String        @db.VarChar(120)
+  description String?       @db.Text
+  scopeType   ScopeType     @map("scope_type")
+  classroomId String?       @db.Uuid @map("classroom_id")
+  createdBy   String        @db.Uuid @map("created_by")
+  createdAt   DateTime      @default(now()) @map("created_at")
+  updatedAt   DateTime      @updatedAt @map("updated_at")
+  status      ContentStatus @default(pending)
+  moderatedBy String?       @db.Uuid @map("moderated_by")
+  moderatedAt DateTime?     @map("moderated_at")
+  creator     User          @relation("AlbumCreatedBy", fields: [createdBy], references: [id], onDelete: Restrict)
+  moderator   User?         @relation("AlbumModeratedBy", fields: [moderatedBy], references: [id], onDelete: SetNull)
+  classroom   Classroom?    @relation(fields: [classroomId], references: [id], onDelete: Restrict)
+  photos      Photo[]
 
   @@index([scopeType, classroomId, createdAt(sort: Desc)])
+  @@index([status, createdAt(sort: Desc)])
   @@map("albums")
+}
+
+model Photo {
+  id          String        @id @default(uuid()) @db.Uuid
+  url         String        @db.VarChar(512)
+  caption     String?       @db.VarChar(200)
+  albumId     String        @db.Uuid @map("album_id")
+  uploadedBy  String        @db.Uuid @map("uploaded_by")
+  createdAt   DateTime      @default(now()) @map("created_at")
+  status      ContentStatus @default(pending)
+  moderatedBy String?       @db.Uuid @map("moderated_by")
+  moderatedAt DateTime?     @map("moderated_at")
+  album       Album         @relation(fields: [albumId], references: [id], onDelete: Cascade)
+  uploader    User          @relation("PhotoUploadedBy", fields: [uploadedBy], references: [id], onDelete: Restrict)
+  moderator   User?         @relation("PhotoModeratedBy", fields: [moderatedBy], references: [id], onDelete: SetNull)
+
+  @@index([albumId, createdAt(sort: Desc)])
+  @@index([status, createdAt(sort: Desc)])
+  @@map("photos")
 }
