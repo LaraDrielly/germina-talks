@@ -1,4 +1,4 @@
-import { UserRole, SchoolTrack, ScopeType, MemberRole } from '@prisma/client';
+import { UserRole, SchoolTrack, ScopeType, MemberRole, ContentStatus } from '@prisma/client';
 
 export interface MockUser {
   id: string;
@@ -59,6 +59,21 @@ export interface MockAlbum {
   createdBy: string;
   createdAt: Date;
   updatedAt: Date;
+  status: ContentStatus;
+  moderatedBy: string | null;
+  moderatedAt: Date | null;
+}
+
+export interface MockPhoto {
+  id: string;
+  url: string;
+  caption: string | null;
+  albumId: string;
+  uploadedBy: string;
+  createdAt: Date;
+  status: ContentStatus;
+  moderatedBy: string | null;
+  moderatedAt: Date | null;
 }
 
 export const initialMockUsers: MockUser[] = [
@@ -171,5 +186,22 @@ export const initialMockAlbums: MockAlbum[] = [
     createdBy: 'user-admin-1',
     createdAt: new Date(),
     updatedAt: new Date(),
+    status: ContentStatus.approved,
+    moderatedBy: null,
+    moderatedAt: null,
+  },
+];
+
+export const initialMockPhotos: MockPhoto[] = [
+  {
+    id: 'photo-1',
+    url: '/uploads/seed-hackathon.jpg',
+    caption: 'Abertura',
+    albumId: 'album-1',
+    uploadedBy: 'user-admin-1',
+    createdAt: new Date(),
+    status: ContentStatus.approved,
+    moderatedBy: null,
+    moderatedAt: null,
   },
 ];

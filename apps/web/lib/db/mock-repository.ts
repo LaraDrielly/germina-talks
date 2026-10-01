@@ -5,12 +5,14 @@ import {
   initialMockPosts,
   initialMockBulletinItems,
   initialMockAlbums,
+  initialMockPhotos,
   MockUser,
   MockClassroom,
   MockClassroomMember,
   MockPost,
   MockBulletinItem,
   MockAlbum,
+  MockPhoto,
 } from './mock-data';
 
 class MockRepository {
@@ -20,6 +22,7 @@ class MockRepository {
   private posts: MockPost[] = [...initialMockPosts];
   private bulletinItems: MockBulletinItem[] = [...initialMockBulletinItems];
   private albums: MockAlbum[] = [...initialMockAlbums];
+  private photos: MockPhoto[] = [...initialMockPhotos];
 
   // User
   user = {
@@ -375,7 +378,7 @@ class MockRepository {
 
   // Album
   album = {
-    findMany: async (args?: { where?: any; orderBy?: any }) => {
+    findMany: async (args?: { where?: any; orderBy?: any; include?: any }) => {
       let result = [...this.albums];
 
       if (args?.where) {
@@ -385,15 +388,51 @@ class MockRepository {
         if (args.where.classroomId !== undefined) {
           result = result.filter((a) => a.classroomId === args.where.classroomId);
         }
+        if (args.where.status) {
+          result = result.filter((a) => a.status === args.where.status);
+        }
+        if (args.where.OR) {
+          result = result.filter((a) =>
+            args.where.OR.some((clause: any) => {
+              if (clause.status && a.status !== clause.status) return false;
+              if (clause.createdBy && a.createdBy !== clause.createdBy) return false;
+              return true;
+            }),
+          );
+        }
       }
 
       if (args?.orderBy?.createdAt === 'desc') {
         result.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
       }
 
+      if (args?.include?.photos) {
+        return result.map((album) => ({
+          ...album,
+          photos: this.photos.filter((photo) => {
+            if (photo.albumId !== album.id) return false;
+            const photoWhere = args.include.photos.where;
+            if (photoWhere?.status && photo.status !== photoWhere.status) return false;
+            return true;
+          }),
+        }));
+      }
+
       return result;
     },
-    create: async (args: { data: Omit<MockAlbum, 'createdAt' | 'updatedAt' | 'id'> & { id?: string } }) => {
+    findUnique: async (args: { where: { id: string }; include?: any }) => {
+      const album = this.albums.find((a) => a.id === args.where.id) || null;
+      if (!album) return null;
+      if (args.include?.photos) {
+        return {
+          ...album,
+          photos: this.photos.filter((p) => p.albumId === album.id),
+          creator: this.users.find((u) => u.id === album.createdBy) || null,
+        };
+      }
+      return album;
+    },
+    create: async (args: { data: Omit<MockAlbum, 'createdAt' | 'updatedAt' | 'id' | 'moderatedBy' | 'moderatedAt'> & { id?: string; moderatedBy?: string | null; moderatedAt?: Date | null } }) => {
       const newAlbum: MockAlbum = {
         id: args.data.id || `album-${Date.now()}`,
         title: args.data.title,
@@ -403,9 +442,69 @@ class MockRepository {
         createdBy: args.data.createdBy,
         createdAt: new Date(),
         updatedAt: new Date(),
+        status: args.data.status,
+        moderatedBy: args.data.moderatedBy ?? null,
+        moderatedAt: args.data.moderatedAt ?? null,
       };
       this.albums.push(newAlbum);
       return newAlbum;
+    },
+    update: async (args: { where: { id: string }; data: Partial<MockAlbum> }) => {
+      const album = this.albums.find((a) => a.id === args.where.id);
+      if (!album) throw new Error('Album not found');
+      Object.assign(album, args.data, { updatedAt: new Date() });
+      return album;
+    },
+  };
+
+  photo = {
+    findMany: async (args?: { where?: any; include?: any; orderBy?: any }) => {
+      let result = [...this.photos];
+      if (args?.where?.status) {
+        result = result.filter((p) => p.status === args.where.status);
+      }
+      if (args?.where?.albumId) {
+        result = result.filter((p) => p.albumId === args.where.albumId);
+      }
+      if (args?.orderBy?.createdAt === 'desc') {
+        result.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+      }
+      if (args?.include?.album) {
+        return result.map((photo) => ({
+          ...photo,
+          album: this.albums.find((a) => a.id === photo.albumId) || null,
+        }));
+      }
+      return result;
+    },
+    create: async (args: { data: Omit<MockPhoto, 'createdAt' | 'id' | 'moderatedBy' | 'moderatedAt'> & { id?: string; moderatedBy?: string | null; moderatedAt?: Date | null } }) => {
+      const newPhoto: MockPhoto = {
+        id: args.data.id || `photo-${Date.now()}`,
+        url: args.data.url,
+        caption: args.data.caption ?? null,
+        albumId: args.data.albumId,
+        uploadedBy: args.data.uploadedBy,
+        createdAt: new Date(),
+        status: args.data.status,
+        moderatedBy: args.data.moderatedBy ?? null,
+        moderatedAt: args.data.moderatedAt ?? null,
+      };
+      this.photos.push(newPhoto);
+      return newPhoto;
+    },
+    update: async (args: { where: { id: string }; data: Partial<MockPhoto> }) => {
+      const photo = this.photos.find((p) => p.id === args.where.id);
+      if (!photo) throw new Error('Photo not found');
+      Object.assign(photo, args.data);
+      return photo;
+    },
+    findUnique: async (args: { where: { id: string }; include?: any }) => {
+      const photo = this.photos.find((p) => p.id === args.where.id) || null;
+      if (!photo) return null;
+      if (args.include?.album) {
+        return { ...photo, album: this.albums.find((a) => a.id === photo.albumId) || null };
+      }
+      return photo;
     },
   };
 }
