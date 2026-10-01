@@ -24,13 +24,26 @@ enum ScopeType {
   classroom
 }
 
+enum MemberRole {
+  student
+  teacher
+  @@map("member_role")
+}
+
 model User {
   id        String   @id @default(uuid()) @db.Uuid
   email     String   @unique
   name      String
   role      UserRole @default(student)
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+  passwordHash String?  @map("password_hash")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  classroomMemberships ClassroomMember[]
+  authoredBulletins    BulletinItem[]
+  authoredPosts        Post[]
+  createdAlbums        PhotoAlbum[]
+  uploadedPhotos       Photo[]
 
   @@map("users")
 }
@@ -41,7 +54,99 @@ model Classroom {
   slug       String      @unique
   schoolTrack SchoolTrack @map("school_track")
   year       Int
-  createdAt  DateTime    @default(now()) @map("created_at")
+  createdAt  DateTime    @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  members   ClassroomMember[]
+  bulletins BulletinItem[]
+  posts     Post[]
+  albums    PhotoAlbum[]
 
   @@map("classrooms")
+}
+
+model ClassroomMember {
+  userId      String     @db.Uuid @map("user_id")
+  classroomId String     @db.Uuid @map("classroom_id")
+  roleInClass MemberRole @map("role_in_class")
+  joinedAt    DateTime   @default(now()) @map("joined_at") @db.Timestamptz(3)
+
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  classroom Classroom @relation(fields: [classroomId], references: [id], onDelete: Cascade)
+
+  @@id([userId, classroomId])
+  @@index([classroomId, roleInClass])
+  @@map("classroom_members")
+}
+
+model BulletinItem {
+  id          String    @id @default(uuid()) @db.Uuid
+  authorId    String    @db.Uuid @map("author_id")
+  title       String    @db.VarChar(120)
+  body        String
+  isPinned    Boolean   @default(false) @map("is_pinned")
+  scopeType   ScopeType @map("scope_type")
+  classroomId String?   @db.Uuid @map("classroom_id")
+  expiresAt   DateTime? @map("expires_at") @db.Timestamptz(3)
+  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt   DateTime  @updatedAt @map("updated_at") @db.Timestamptz(3)
+  deletedAt   DateTime? @map("deleted_at") @db.Timestamptz(3)
+
+  author    User       @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  classroom Classroom? @relation(fields: [classroomId], references: [id], onDelete: Cascade)
+
+  @@index([scopeType, classroomId, isPinned, createdAt])
+  @@index([expiresAt])
+  @@map("bulletin_items")
+}
+
+model Post {
+  id          String     @id @default(uuid()) @db.Uuid
+  authorId    String     @db.Uuid @map("author_id")
+  content     String     @db.VarChar(280)
+  scopeType   ScopeType  @map("scope_type")
+  classroomId String?    @db.Uuid @map("classroom_id")
+  createdAt   DateTime   @default(now()) @map("created_at") @db.Timestamptz(3)
+  deletedAt   DateTime?  @map("deleted_at") @db.Timestamptz(3)
+
+  author    User       @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  classroom Classroom? @relation(fields: [classroomId], references: [id], onDelete: Cascade)
+
+  @@index([scopeType, classroomId, createdAt, id])
+  @@index([authorId, createdAt])
+  @@map("posts")
+}
+
+model PhotoAlbum {
+  id          String     @id @default(uuid()) @db.Uuid
+  creatorId   String     @db.Uuid @map("creator_id")
+  title       String     @db.VarChar(120)
+  description String?    @db.VarChar(500)
+  scopeType   ScopeType  @map("scope_type")
+  classroomId String?    @db.Uuid @map("classroom_id")
+  createdAt   DateTime   @default(now()) @map("created_at") @db.Timestamptz(3)
+  deletedAt   DateTime?  @map("deleted_at") @db.Timestamptz(3)
+
+  creator   User       @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+  classroom Classroom? @relation(fields: [classroomId], references: [id], onDelete: Cascade)
+  photos    Photo[]
+
+  @@index([scopeType, classroomId, createdAt])
+  @@map("photo_albums")
+}
+
+model Photo {
+  id          String     @id @default(uuid()) @db.Uuid
+  albumId     String     @db.Uuid @map("album_id")
+  uploaderId  String     @db.Uuid @map("uploader_id")
+  objectKey   String     @unique @map("object_key")
+  contentType String     @db.VarChar(32) @map("content_type")
+  sizeBytes   Int        @map("size_bytes")
+  caption     String?    @db.VarChar(200)
+  createdAt   DateTime   @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  album    PhotoAlbum @relation(fields: [albumId], references: [id], onDelete: Cascade)
+  uploader User       @relation(fields: [uploaderId], references: [id], onDelete: Cascade)
+
+  @@index([albumId, createdAt, id])
+  @@map("photos")
 }

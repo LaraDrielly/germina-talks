@@ -1,0 +1,3 @@
+-- Intentionally empty: the bulletin board schema is created by
+-- 20260928_initial_bulletin_board. This migration name is retained in the
+-- migration history for compatibility with previously generated databases.

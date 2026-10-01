@@ -3,10 +3,16 @@
   "private": true,
   "version": "0.1.0",
   "exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.ts",
+    "./password": "./src/password.ts",
+    "./bulletin": "./src/bulletin.ts",
+    "./content": "./src/content.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "zod": "^4.1.11"
   },
   "devDependencies": {
     "typescript": "5.9.2"

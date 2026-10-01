@@ -6,8 +6,8 @@ import { FormEvent, useState } from 'react';
 
 export function LoginForm() {
   const router = useRouter();
-  const [email, setEmail] = useState('ana.aluna@institutojef.org.br');
-  const [password, setPassword] = useState('germina123');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
@@ -16,21 +16,20 @@ export function LoginForm() {
     setError('');
     setIsLoading(true);
 
-    const result = await signIn('credentials', {
-      email,
-      password,
-      redirect: false,
-    });
+    try {
+      const result = await signIn('credentials', { email, password, redirect: false });
+      if (result?.error) {
+        setError('E-mail ou senha inválidos.');
+        return;
+      }
 
-    setIsLoading(false);
-
-    if (result?.error) {
-      setError('Credenciais inválidas. Use um e-mail institucional e a senha local.');
-      return;
+      router.push('/feed');
+      router.refresh();
+    } catch {
+      setError('Não foi possível entrar agora. Tente novamente.');
+    } finally {
+      setIsLoading(false);
     }
-
-    router.push('/feed');
-    router.refresh();
   }
 
   return (

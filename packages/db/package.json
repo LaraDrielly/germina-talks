@@ -5,10 +5,13 @@
   "scripts": {
     "generate": "prisma generate",
     "migrate": "prisma migrate dev",
+    "provision": "tsx prisma/provision-user.ts",
     "seed": "tsx prisma/seed.ts"
   },
   "dependencies": {
-    "@prisma/client": "6.16.2"
+    "@germina-talks/shared": "0.1.0",
+    "@prisma/client": "6.16.2",
+    "dotenv": "^16.4.7"
   },
   "devDependencies": {
     "prisma": "6.16.2",
