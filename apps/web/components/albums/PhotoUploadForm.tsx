@@ -74,50 +74,48 @@ export function PhotoUploadForm({ albumId, onSuccess }: PhotoUploadFormProps) {
         </p>
       </div>
 
-      <div className="grid gap-3 md:grid-cols-[1fr_auto] md:items-end">
-        <div className="space-y-3">
-          <div>
-            <label htmlFor={inputId} className="mb-1.5 block text-sm font-medium text-slate-700">
-              Arquivo
-            </label>
-            <input
-              id={inputId}
-              type="file"
-              name="file"
-              accept="image/jpeg,image/png,image/webp"
-              disabled={isUploading}
-              className="block w-full cursor-pointer rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-700 file:mr-3 file:cursor-pointer file:rounded-lg file:border-0 file:bg-primary file:px-3 file:py-1.5 file:text-sm file:font-semibold file:text-white hover:file:bg-primary/90"
-              onChange={(event) => {
-                const file = event.target.files?.[0];
-                setFileName(file ? file.name : '');
-                setError('');
-              }}
-            />
-            <p className="mt-1.5 text-xs text-slate-500">
-              {fileName ? `Selecionado: ${fileName}` : 'Nenhum arquivo selecionado'}
-            </p>
-          </div>
+      <div className="space-y-3">
+        <div>
+          <label htmlFor={inputId} className="mb-1.5 block text-sm font-medium text-slate-700">
+            Arquivo
+          </label>
+          <input
+            id={inputId}
+            type="file"
+            name="file"
+            accept="image/jpeg,image/png,image/webp"
+            disabled={isUploading}
+            className="block w-full cursor-pointer rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-700 file:mr-3 file:cursor-pointer file:rounded-lg file:border-0 file:bg-primary file:px-3 file:py-1.5 file:text-sm file:font-semibold file:text-white hover:file:bg-primary/90"
+            onChange={(event) => {
+              const file = event.target.files?.[0];
+              setFileName(file ? file.name : '');
+              setError('');
+            }}
+          />
+          <p className="mt-1.5 text-xs text-slate-500">
+            {fileName ? `Selecionado: ${fileName}` : 'Nenhum arquivo selecionado'}
+          </p>
+        </div>
 
-          <div>
-            <label className="mb-1.5 block text-sm font-medium text-slate-700" htmlFor={`${inputId}-caption`}>
-              Legenda (opcional)
-            </label>
-            <input
-              id={`${inputId}-caption`}
-              type="text"
-              name="caption"
-              maxLength={200}
-              placeholder="Ex.: Feira de ciências"
-              className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-700 outline-none focus:border-accent focus:ring-2 focus:ring-accent/20"
-              disabled={isUploading}
-            />
-          </div>
+        <div>
+          <label className="mb-1.5 block text-sm font-medium text-slate-700" htmlFor={`${inputId}-caption`}>
+            Legenda (opcional)
+          </label>
+          <input
+            id={`${inputId}-caption`}
+            type="text"
+            name="caption"
+            maxLength={200}
+            placeholder="Ex.: Feira de ciências"
+            className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-700 outline-none focus:border-accent focus:ring-2 focus:ring-accent/20"
+            disabled={isUploading}
+          />
         </div>
 
         <button
           type="submit"
           disabled={isUploading}
-          className="inline-flex h-11 w-full items-center justify-center rounded-xl bg-[#11C76F] px-5 text-sm font-semibold text-white transition hover:brightness-95 disabled:cursor-not-allowed disabled:opacity-60 md:w-auto md:min-w-[140px]"
+          className="inline-flex h-12 w-full items-center justify-center rounded-xl bg-[#11C76F] px-8 text-base font-semibold text-white transition hover:brightness-95 disabled:cursor-not-allowed disabled:opacity-60 sm:h-14 sm:min-w-[220px] sm:w-auto sm:px-10 sm:text-lg"
         >
           {isUploading ? 'Enviando...' : 'Enviar foto'}
         </button>
