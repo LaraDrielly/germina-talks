@@ -1,80 +1,63 @@
-# Publicações (feed)
+# Publicações Specification
 
-**Prioridade:** P1 | **Escopo:** global + sala
+## Purpose
 
-## Overview
-
-Permite que membros da comunidade escolar publiquem mensagens curtas em um feed cronológico, semelhante a um tweet, visíveis no escopo global ou de uma sala específica.
-
-## Personas
-
-- **Aluno** — compartilha dúvidas, comentários e novidades com colegas
-- **Professor** — compartilha lembretes rápidos com a turma
-- **Coordenação** — publica avisos rápidos para toda a escola
-
-## Scenarios
-
-### Scenario: Aluno publica na sala
-- **GIVEN** um aluno membro da sala "3º ADS"
-- **WHEN** ele escreve "Alguém tem o material da aula de hoje?" e publica
-- **THEN** a publicação aparece no feed da sala com seu nome e horário
-
-### Scenario: Publicação respeita limite de caracteres
-- **GIVEN** um usuário criando uma publicação
-- **WHEN** o texto excede 280 caracteres
-- **THEN** o sistema impede o envio e exibe contador de caracteres
-
-### Scenario: Feed ordenado cronologicamente
-- **GIVEN** 3 publicações na sala com horários diferentes
-- **WHEN** um membro acessa o feed
-- **THEN** as publicações aparecem da mais recente para a mais antiga
-
-### Scenario: Autor deleta própria publicação
-- **GIVEN** um aluno que publicou uma mensagem
-- **WHEN** ele clica em "Excluir" na sua publicação
-- **THEN** a publicação é removida do feed (soft delete)
-
-### Scenario: Feed com paginação infinita
-- **GIVEN** mais de 20 publicações na sala
-- **WHEN** o aluno rola até o final do feed
-- **THEN** as publicações seguintes são carregadas automaticamente
+Permite que membros da comunidade escolar compartilhem mensagens curtas em feeds cronológicos globais ou restritos às salas das quais participam.
 
 ## Requirements
 
-### MUST
-- Texto limitado a 280 caracteres
-- Escopo global ou por sala (ver organization/scopes)
-- Feed cronológico decrescente
-- Autor pode deletar própria publicação
-- Exibir: avatar, nome, papel, timestamp, ScopeBadge
-- Paginação por cursor (20 itens por página)
+### Requirement: Publicação no escopo permitido
+O sistema MUST permitir que usuários autenticados publiquem mensagens de 1 a 280 caracteres no escopo global ou em uma sala à qual tenham acesso.
 
-### SHOULD
-- Contador de caracteres no formulário
-- Empty state amigável quando feed vazio
+#### Scenario: Aluno publica em sala
+- **WHEN** um aluno membro publica uma mensagem válida na sala
+- **THEN** ela aparece no feed dessa sala com autor, papel e horário
 
-### WON'T
-- Curtidas e comentários no MVP
-- Mídia anexa (imagens/vídeos) em posts no MVP
-- Edição de publicação após envio no MVP
+#### Scenario: Usuário sem vínculo tenta publicar em sala
+- **WHEN** um usuário autenticado sem vínculo envia uma publicação para uma sala
+- **THEN** o sistema rejeita a operação sem persistir a publicação
 
-## Scope
+#### Scenario: Texto fora do limite
+- **WHEN** o texto está vazio ou excede 280 caracteres
+- **THEN** o sistema rejeita a publicação e informa a validação
 
-global + classroom
+### Requirement: Leitura cronológica e paginada do feed
+O sistema MUST listar publicações acessíveis em ordem decrescente de criação com paginação por cursor de até 20 itens.
 
-## Dependencies
+#### Scenario: Feed global
+- **WHEN** um usuário autenticado acessa o feed global
+- **THEN** vê publicações globais recentes sem publicações de salas às quais não pertence
 
-- identity/auth
-- identity/roles
-- organization/classrooms
-- organization/scopes
+#### Scenario: Feed da sala
+- **WHEN** um membro acessa o feed de uma sala
+- **THEN** vê somente publicações dessa sala em ordem da mais recente para a mais antiga
 
-## Design references
+#### Scenario: Próxima página
+- **WHEN** o cliente envia o cursor da página anterior
+- **THEN** o sistema retorna até 20 itens seguintes sem repetir publicações
 
-- docs/design-system.md#PostCard
-- docs/design-system.md#EmptyState
+#### Scenario: Carregamento ao chegar ao fim
+- **WHEN** o usuário chega ao final de uma página do feed
+- **THEN** a interface carrega automaticamente a próxima página disponível
 
-## Open questions
+### Requirement: Exclusão pelo autor
+O sistema MUST permitir que somente o autor remova sua publicação, preservando o registro por exclusão lógica.
 
-- [ ] Professor pode deletar post de aluno na sala?
-- [ ] Curtidas entram em v1 ou v2?
+#### Scenario: Autor remove publicação
+- **WHEN** o autor solicita a exclusão de sua publicação
+- **THEN** ela deixa de aparecer nos feeds e recebe estado de exclusão lógica
+
+#### Scenario: Outro usuário tenta remover publicação
+- **WHEN** alguém que não é o autor solicita a exclusão
+- **THEN** o sistema rejeita a operação e mantém a publicação visível
+
+### Requirement: Apresentação do feed
+O sistema MUST exibir autoria, papel, horário e escopo de cada publicação, um contador de caracteres no formulário e um estado vazio amigável quando não houver publicações acessíveis.
+
+#### Scenario: Publicação com contexto de autoria
+- **WHEN** uma publicação aparece no feed
+- **THEN** a interface mostra avatar com iniciais, nome, papel, horário e badge de escopo
+
+#### Scenario: Feed vazio
+- **WHEN** não há publicações acessíveis
+- **THEN** a interface explica em português que ainda não há publicações
