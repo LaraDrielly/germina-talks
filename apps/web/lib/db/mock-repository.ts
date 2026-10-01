@@ -73,8 +73,8 @@ class MockRepository {
     findMany: async (args?: { where?: any; include?: any }) => {
       let result = [...this.classrooms];
 
-      if (args?.where?.members?.some?.userId) {
-        const targetUserId = args.where.members.some.userId;
+      if (args?.where?.memberships?.some?.userId) {
+        const targetUserId = args.where.memberships.some.userId;
         const userClassroomIds = this.classroomMembers
           .filter((m) => m.userId === targetUserId)
           .map((m) => m.classroomId);
@@ -84,9 +84,9 @@ class MockRepository {
       if (args?.include) {
         return result.map((c) => {
           const item: any = { ...c };
-          if (args.include.members) {
-            const memberWhere = args.include.members.where || {};
-            item.members = this.classroomMembers.filter((m) => {
+          if (args.include.memberships) {
+            const memberWhere = args.include.memberships.where || {};
+            item.memberships = this.classroomMembers.filter((m) => {
               if (m.classroomId !== c.id) return false;
               if (memberWhere.userId && m.userId !== memberWhere.userId) return false;
               return true;

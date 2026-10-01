@@ -2,20 +2,20 @@ import { prisma } from '@/lib/db/prisma';
 import { MemberRole, type Classroom } from '@prisma/client';
 
 export type ClassroomWithMembership = Classroom & {
-  members: Array<{ userId: string; classroomId: string; role: MemberRole; joinedAt: Date }>;
+  memberships: Array<{ userId: string; classroomId: string; role: MemberRole; joinedAt: Date }>;
 };
 
 export async function getClassroomsForUser(userId: string): Promise<ClassroomWithMembership[]> {
   return (await prisma.classroom.findMany({
     where: {
-      members: {
+      memberships: {
         some: {
           userId,
         },
       },
     },
     include: {
-      members: {
+      memberships: {
         where: {
           userId,
         },

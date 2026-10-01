@@ -36,7 +36,7 @@ model User {
   role      UserRole @default(student)
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
-  classroomMemberships ClassroomMember[]
+  memberships ClassroomMember[]
   posts     Post[]
   bulletins BulletinItem[]
   albums    Album[]
@@ -51,7 +51,7 @@ model Classroom {
   schoolTrack SchoolTrack @map("school_track")
   year       Int
   createdAt  DateTime    @default(now()) @map("created_at")
-  members    ClassroomMember[]
+  memberships ClassroomMember[]
   posts      Post[]
   bulletins  BulletinItem[]
   albums     Album[]

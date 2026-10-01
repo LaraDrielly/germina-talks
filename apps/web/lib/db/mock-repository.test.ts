@@ -15,7 +15,7 @@ describe('MockRepository', () => {
   it('should list classrooms for user', async () => {
     const classrooms = await mockRepository.classroom.findMany({
       where: {
-        members: {
+        memberships: {
           some: {
             userId: 'user-student-1',
           },
