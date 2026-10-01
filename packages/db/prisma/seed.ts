@@ -1,4 +1,4 @@
-import { PrismaClient, SchoolTrack, UserRole } from '@prisma/client';
+import { MemberRole, PrismaClient, SchoolTrack, UserRole } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
@@ -36,6 +36,38 @@ async function main() {
       }),
     ),
   );
+
+  const memberships = [
+    { userEmail: 'ana.aluna@institutojef.org.br', classroomSlug: '3-ano-negocios-2026', role: MemberRole.student },
+    { userEmail: 'bruno.aluno@institutojef.org.br', classroomSlug: '3-ano-tecnologia-2026', role: MemberRole.student },
+    { userEmail: 'carla.professora@institutojef.org.br', classroomSlug: '3-ano-negocios-2026', role: MemberRole.teacher },
+    { userEmail: 'carla.professora@institutojef.org.br', classroomSlug: '3-ano-tecnologia-2026', role: MemberRole.teacher },
+    { userEmail: 'diego.professor@institutojef.org.br', classroomSlug: '3-ano-fabrica-2026', role: MemberRole.teacher },
+  ];
+
+  for (const membership of memberships) {
+    const user = await prisma.user.findUnique({ where: { email: membership.userEmail } });
+    const classroom = await prisma.classroom.findUnique({ where: { slug: membership.classroomSlug } });
+
+    if (!user || !classroom) {
+      continue;
+    }
+
+    await prisma.classroomMember.upsert({
+      where: {
+        userId_classroomId: {
+          userId: user.id,
+          classroomId: classroom.id,
+        },
+      },
+      update: { role: membership.role },
+      create: {
+        userId: user.id,
+        classroomId: classroom.id,
+        role: membership.role,
+      },
+    });
+  }
 }
 
 main()

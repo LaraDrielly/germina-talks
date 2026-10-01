@@ -1,5 +1,6 @@
 import type { NextAuthOptions } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
+import { prisma } from '@/lib/db/prisma';
 
 const demoPassword = process.env.NEXTAUTH_DEMO_PASSWORD ?? 'germina123';
 
@@ -32,17 +33,29 @@ export const authOptions: NextAuthOptions = {
           return null;
         }
 
-        const role = email.includes('prof')
-          ? 'teacher'
-          : email.includes('coord') || email.includes('admin')
-            ? 'admin'
-            : 'student';
+        let dbUser = await prisma.user.findUnique({ where: { email } });
+
+        if (!dbUser) {
+          const role = email.includes('prof')
+            ? 'teacher'
+            : email.includes('coord') || email.includes('admin')
+              ? 'admin'
+              : 'student';
+
+          dbUser = await prisma.user.create({
+            data: {
+              email,
+              name: email.split('@')[0].replace(/[._]/g, ' '),
+              role,
+            },
+          });
+        }
 
         return {
-          id: email,
-          name: email.split('@')[0].replace(/[._]/g, ' '),
-          email,
-          role,
+          id: dbUser.id,
+          name: dbUser.name,
+          email: dbUser.email,
+          role: dbUser.role,
         };
       },
     }),
@@ -51,6 +64,7 @@ export const authOptions: NextAuthOptions = {
     async jwt({ token, user }) {
       if (user) {
         token.role = (user as { role?: string }).role;
+        token.id = (user as { id?: string }).id;
       }
 
       return token;
@@ -58,6 +72,7 @@ export const authOptions: NextAuthOptions = {
     async session({ session, token }) {
       if (session.user) {
         session.user.role = token.role as string | undefined;
+        (session.user as any).id = token.id as string | undefined;
       }
 
       return session;

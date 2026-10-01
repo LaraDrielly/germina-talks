@@ -1,4 +1,8 @@
 import Link from 'next/link';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/auth';
+import { getClassroomsForUser } from '@/lib/services/classroom';
+import { SchoolTrack } from '@prisma/client';
 
 const navigation = [
   { href: '/feed', label: 'Feed' },
@@ -8,9 +12,25 @@ const navigation = [
   { href: '/perfil', label: 'Perfil' },
 ];
 
-const classrooms = ['Negócios', 'Tecnologia', 'Fábrica'];
+const trackColors: Record<SchoolTrack, string> = {
+  business: 'bg-[#27AAE1]', // Accent color
+  tech: 'bg-[#3A255B]', // Primary color
+  factory: 'bg-[#F26522]', // Complementary color
+};
 
-export default function MainLayout({ children }: { children: React.ReactNode }) {
+export default async function MainLayout({ children }: { children: React.ReactNode }) {
+  const session = await getServerSession(authOptions);
+  const classrooms = session?.user ? await getClassroomsForUser(session.user.id) : [];
+
+  const groupedClassrooms = classrooms.reduce((acc, classroom) => {
+    const track = classroom.schoolTrack as SchoolTrack;
+    if (!acc[track]) {
+      acc[track] = [];
+    }
+    acc[track].push(classroom);
+    return acc;
+  }, {} as Record<SchoolTrack, typeof classrooms>);
+
   return (
     <div className="min-h-screen bg-slate-100 text-slate-800">
       <div className="mx-auto flex max-w-7xl gap-6 px-4 py-4 md:px-6 lg:py-6">
@@ -37,15 +57,19 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
             ))}
           </nav>
 
-          <div className="mt-10 rounded-2xl bg-white/10 p-4">
-            <p className="text-xs uppercase tracking-[0.2em] text-white/70">Salas</p>
-            <ul className="mt-3 space-y-2 text-sm text-white/85">
-              {classrooms.map((classroom) => (
-                <li key={classroom} className="rounded-lg bg-white/5 px-3 py-2">
-                  {classroom}
-                </li>
-              ))}
-            </ul>
+          <div className="mt-10 space-y-6">
+            {Object.entries(groupedClassrooms).map(([track, rooms]) => (
+              <div key={track}>
+                <p className="text-xs uppercase tracking-[0.2em] text-white/70">{track}</p>
+                <ul className="mt-3 space-y-2 text-sm text-white/85">
+                  {rooms.map((room) => (
+                    <li key={room.id} className={`rounded-lg ${trackColors[room.schoolTrack as SchoolTrack]} px-3 py-2`}>
+                      <Link href={`/salas/${room.id}/feed`}>{room.name}</Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
           </div>
         </aside>
 
@@ -61,7 +85,7 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
                 Buscar
               </button>
               <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-sm font-semibold text-white">
-                AA
+                {session?.user.name?.split(' ').map((n: string) => n[0]).join('')}
               </div>
             </div>
           </header>
