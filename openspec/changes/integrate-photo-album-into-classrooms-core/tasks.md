@@ -5,7 +5,7 @@
 ## 1. Spec, archives e baseline
 
 - [ ] 1.1 Confirmar delta de `communication/photo-album` contra o design (API `/api/v1`, membership, moderação, sem forjar identidade) e marcar inconsistências se houver
-- [ ] 1.2 Copiar intactos de `origin/feat/photo-album-and-moderation` os archives `2026-09-30-photo-album` e `2026-09-30-photo-album-local-upload` para `openspec/changes/archive/`; verificar que as pastas e `.openspec.yaml` existem e batem com a origem
+- [x] 1.2 Copiar intactos de `origin/feat/photo-album-and-moderation` os archives `2026-09-30-photo-album` e `2026-09-30-photo-album-local-upload` para `openspec/changes/archive/`; verificar que as pastas e `.openspec.yaml` existem e batem com a origem
 
 ## 2. Database
 
