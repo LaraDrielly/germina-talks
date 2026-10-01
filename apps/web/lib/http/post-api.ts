@@ -1,5 +1,6 @@
 import { ZodError } from 'zod';
 import { PostServiceError } from '../services/posts';
+import { AlbumServiceError } from '../services/albums';
 
 export function postApiErrorResponse(error: unknown): Response {
   if (error instanceof ZodError || error instanceof SyntaxError) {
@@ -9,7 +10,7 @@ export function postApiErrorResponse(error: unknown): Response {
     );
   }
 
-  if (error instanceof PostServiceError) {
+  if (error instanceof PostServiceError || error instanceof AlbumServiceError) {
     return Response.json(
       { error: { code: error.code, message: error.message } },
       { status: error.status },
