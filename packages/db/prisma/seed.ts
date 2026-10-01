@@ -1,4 +1,4 @@
-import { MemberRole, PrismaClient, SchoolTrack, UserRole } from '@prisma/client';
+import { ContentStatus, MemberRole, PrismaClient, SchoolTrack, ScopeType, UserRole } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
@@ -65,6 +65,91 @@ async function main() {
         userId: user.id,
         classroomId: classroom.id,
         role: membership.role,
+      },
+    });
+  }
+
+  const carla = await prisma.user.findUnique({ where: { email: 'carla.professora@institutojef.org.br' } });
+  const techClassroom = await prisma.classroom.findUnique({ where: { slug: '3-ano-tecnologia-2026' } });
+
+  if (carla && techClassroom) {
+    const globalAlbum = await prisma.album.upsert({
+      where: { id: 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa' },
+      update: {
+        title: 'Formatura 2026',
+        description: 'Álbum global de eventos da escola',
+        scopeType: ScopeType.global,
+        classroomId: null,
+        createdBy: carla.id,
+        status: ContentStatus.approved,
+      },
+      create: {
+        id: 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
+        title: 'Formatura 2026',
+        description: 'Álbum global de eventos da escola',
+        scopeType: ScopeType.global,
+        classroomId: null,
+        createdBy: carla.id,
+        status: ContentStatus.approved,
+      },
+    });
+
+    const classroomAlbum = await prisma.album.upsert({
+      where: { id: 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb' },
+      update: {
+        title: 'Feira de Ciências 2026',
+        description: 'Registros da turma de Tecnologia',
+        scopeType: ScopeType.classroom,
+        classroomId: techClassroom.id,
+        createdBy: carla.id,
+        status: ContentStatus.approved,
+      },
+      create: {
+        id: 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb',
+        title: 'Feira de Ciências 2026',
+        description: 'Registros da turma de Tecnologia',
+        scopeType: ScopeType.classroom,
+        classroomId: techClassroom.id,
+        createdBy: carla.id,
+        status: ContentStatus.approved,
+      },
+    });
+
+    await prisma.photo.upsert({
+      where: { id: 'cccccccc-cccc-cccc-cccc-cccccccccccc' },
+      update: {
+        url: '/uploads/seed-formatura.jpg',
+        caption: 'Cerimônia',
+        albumId: globalAlbum.id,
+        uploadedBy: carla.id,
+        status: ContentStatus.approved,
+      },
+      create: {
+        id: 'cccccccc-cccc-cccc-cccc-cccccccccccc',
+        url: '/uploads/seed-formatura.jpg',
+        caption: 'Cerimônia',
+        albumId: globalAlbum.id,
+        uploadedBy: carla.id,
+        status: ContentStatus.approved,
+      },
+    });
+
+    await prisma.photo.upsert({
+      where: { id: 'dddddddd-dddd-dddd-dddd-dddddddddddd' },
+      update: {
+        url: '/uploads/seed-feira.jpg',
+        caption: 'Estande da turma',
+        albumId: classroomAlbum.id,
+        uploadedBy: carla.id,
+        status: ContentStatus.approved,
+      },
+      create: {
+        id: 'dddddddd-dddd-dddd-dddd-dddddddddddd',
+        url: '/uploads/seed-feira.jpg',
+        caption: 'Estande da turma',
+        albumId: classroomAlbum.id,
+        uploadedBy: carla.id,
+        status: ContentStatus.approved,
       },
     });
   }
