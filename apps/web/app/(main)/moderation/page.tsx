@@ -18,8 +18,10 @@ export default function ModerationPage() {
   const [albums, setAlbums] = useState<PendingAlbum[]>([]);
   const [photos, setPhotos] = useState<PendingPhoto[]>([]);
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(true);
 
   const load = () => {
+    setLoading(true);
     fetch('/api/v1/moderation/pending')
       .then(async (response) => {
         if (!response.ok) {
@@ -31,8 +33,10 @@ export default function ModerationPage() {
       .then((payload) => {
         setAlbums(payload.data?.albums ?? []);
         setPhotos(payload.data?.photos ?? []);
+        setError('');
       })
-      .catch((err) => setError(err instanceof Error ? err.message : 'Erro ao carregar fila.'));
+      .catch((err) => setError(err instanceof Error ? err.message : 'Erro ao carregar fila.'))
+      .finally(() => setLoading(false));
   };
 
   useEffect(() => {
@@ -53,77 +57,98 @@ export default function ModerationPage() {
     }
   };
 
-  if (error) {
-    return <p className="text-sm text-[#DC4405]">{error}</p>;
+  if (error && !loading && albums.length === 0 && photos.length === 0) {
+    return (
+      <p className="rounded-xl border border-[#DC4405]/20 bg-[#DC4405]/5 px-3 py-2 text-sm text-[#DC4405]">
+        {error}
+      </p>
+    );
   }
 
   return (
-    <div className="space-y-8">
-      <div>
-        <h2 className="text-3xl font-semibold text-[#3A255B]">Moderação</h2>
-        <p className="text-sm text-[#6B7280]">Fila de álbuns e fotos pendentes</p>
-      </div>
+    <section className="space-y-8">
+      <header>
+        <p className="text-[10px] uppercase tracking-[0.2em] text-accent">Coordenação</p>
+        <h2 className="mt-1 text-2xl font-semibold text-primary sm:text-3xl">Moderação</h2>
+        <p className="mt-1 text-sm text-slate-500">Fila de álbuns e fotos pendentes</p>
+      </header>
 
-      <section>
-        <h3 className="text-xl text-[#3A255B] font-semibold mb-4">Álbuns pendentes ({albums.length})</h3>
-        {albums.length === 0 ? <p className="text-sm text-[#6B7280]">Nenhum álbum pendente.</p> : null}
-        <div className="grid gap-4 md:grid-cols-2">
-          {albums.map((album) => (
-            <div key={album.id} className="border border-[#E5E7EB] p-4 bg-white">
-              <p className="font-semibold text-[#3C3F4F]">{album.title}</p>
-              <p className="text-sm text-[#6B7280]">Por: {album.creator?.name || 'Desconhecido'}</p>
-              <div className="mt-3 flex gap-2">
-                <button
-                  type="button"
-                  onClick={() => moderate('albums', album.id, 'approved')}
-                  className="bg-[#11C76F] text-white px-3 py-1"
-                >
-                  Aprovar
-                </button>
-                <button
-                  type="button"
-                  onClick={() => moderate('albums', album.id, 'rejected')}
-                  className="bg-[#DC4405] text-white px-3 py-1"
-                >
-                  Rejeitar
-                </button>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
+      {error ? (
+        <p className="rounded-xl border border-[#DC4405]/20 bg-[#DC4405]/5 px-3 py-2 text-sm text-[#DC4405]">
+          {error}
+        </p>
+      ) : null}
 
-      <section>
-        <h3 className="text-xl text-[#3A255B] font-semibold mb-4">Fotos pendentes ({photos.length})</h3>
-        {photos.length === 0 ? <p className="text-sm text-[#6B7280]">Nenhuma foto pendente.</p> : null}
-        <div className="grid gap-4 md:grid-cols-3">
-          {photos.map((photo) => (
-            <div key={photo.id} className="border border-[#E5E7EB] bg-white overflow-hidden">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={photo.url} alt="Pendente" className="w-full aspect-square object-cover" />
-              <div className="p-3">
-                <p className="text-sm text-[#6B7280]">Álbum: {photo.album?.title}</p>
-                <div className="mt-3 flex gap-2">
+      <div className="space-y-4">
+        <h3 className="text-lg font-semibold text-primary">Álbuns pendentes ({albums.length})</h3>
+        {albums.length === 0 ? (
+          <p className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-4 py-6 text-sm text-slate-500">
+            Nenhum álbum pendente.
+          </p>
+        ) : (
+          <div className="grid gap-4 sm:grid-cols-2">
+            {albums.map((album) => (
+              <div key={album.id} className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+                <p className="font-semibold text-slate-800">{album.title}</p>
+                <p className="mt-1 text-sm text-slate-500">Por: {album.creator?.name || 'Desconhecido'}</p>
+                <div className="mt-4 flex flex-wrap gap-2">
                   <button
                     type="button"
-                    onClick={() => moderate('photos', photo.id, 'approved')}
-                    className="flex-1 bg-[#11C76F] text-white py-1 text-sm"
+                    onClick={() => moderate('albums', album.id, 'approved')}
+                    className="rounded-xl bg-[#11C76F] px-3 py-2 text-sm font-semibold text-white"
                   >
                     Aprovar
                   </button>
                   <button
                     type="button"
-                    onClick={() => moderate('photos', photo.id, 'rejected')}
-                    className="flex-1 bg-[#DC4405] text-white py-1 text-sm"
+                    onClick={() => moderate('albums', album.id, 'rejected')}
+                    className="rounded-xl bg-[#DC4405] px-3 py-2 text-sm font-semibold text-white"
                   >
                     Rejeitar
                   </button>
                 </div>
               </div>
-            </div>
-          ))}
-        </div>
-      </section>
-    </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      <div className="space-y-4">
+        <h3 className="text-lg font-semibold text-primary">Fotos pendentes ({photos.length})</h3>
+        {photos.length === 0 ? (
+          <p className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-4 py-6 text-sm text-slate-500">
+            Nenhuma foto pendente.
+          </p>
+        ) : (
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {photos.map((photo) => (
+              <div key={photo.id} className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={photo.url} alt="Pendente" className="aspect-square w-full object-cover" />
+                <div className="space-y-3 p-3">
+                  <p className="text-sm text-slate-500">Álbum: {photo.album?.title}</p>
+                  <div className="flex gap-2">
+                    <button
+                      type="button"
+                      onClick={() => moderate('photos', photo.id, 'approved')}
+                      className="flex-1 rounded-xl bg-[#11C76F] py-2 text-sm font-semibold text-white"
+                    >
+                      Aprovar
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => moderate('photos', photo.id, 'rejected')}
+                      className="flex-1 rounded-xl bg-[#DC4405] py-2 text-sm font-semibold text-white"
+                    >
+                      Rejeitar
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </section>
   );
 }

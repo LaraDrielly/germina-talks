@@ -14,16 +14,22 @@ export function PhotoTile({ photo, viewerId }: PhotoTileProps) {
   const isMine = photo.uploadedBy === viewerId;
 
   return (
-    <figure className="relative overflow-hidden bg-[#F5F6F8]">
+    <figure className="group relative overflow-hidden rounded-2xl border border-slate-200 bg-slate-100 shadow-sm">
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={photo.url} alt={photo.caption || 'Foto do álbum'} className="w-full aspect-square object-cover" />
+      <img
+        src={photo.url}
+        alt={photo.caption || 'Foto do álbum'}
+        className="aspect-square w-full object-cover transition duration-300 group-hover:scale-[1.02]"
+      />
       {isPending && isMine ? (
-        <span className="absolute top-2 right-2 px-2 py-1 bg-[#DC4405] text-white text-xs">
-          Aguardando aprovação
+        <span className="absolute left-2 top-2 rounded-full bg-[#DC4405] px-2 py-1 text-[10px] font-semibold text-white sm:text-[11px]">
+          Pendente
         </span>
       ) : null}
       {photo.caption ? (
-        <figcaption className="p-2 text-xs text-[#6B7280]">{photo.caption}</figcaption>
+        <figcaption className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent px-3 pb-3 pt-8 text-xs text-white opacity-100 sm:opacity-0 sm:transition sm:group-hover:opacity-100">
+          {photo.caption}
+        </figcaption>
       ) : null}
     </figure>
   );

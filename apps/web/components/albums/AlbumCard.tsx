@@ -1,3 +1,5 @@
+import Link from 'next/link';
+
 type AlbumCardProps = {
   album: {
     id: string;
@@ -5,7 +7,7 @@ type AlbumCardProps = {
     status: string;
     createdBy: string;
     description?: string | null;
-    photos?: { id: string }[];
+    photos?: Array<{ id: string; url?: string }>;
   };
   viewerId: string;
 };
@@ -13,17 +15,50 @@ type AlbumCardProps = {
 export function AlbumCard({ album, viewerId }: AlbumCardProps) {
   const isPending = album.status === 'pending';
   const isMine = album.createdBy === viewerId;
+  const cover = album.photos?.find((photo) => photo.url)?.url;
+  const count = album.photos?.length ?? 0;
 
   return (
-    <article className="border border-[#E5E7EB] p-4 bg-white">
-      <h3 className="text-lg text-[#3A255B] font-semibold">{album.title}</h3>
-      {album.description ? <p className="mt-1 text-sm text-[#6B7280]">{album.description}</p> : null}
-      <p className="mt-2 text-xs text-[#6B7280]">{album.photos?.length ?? 0} foto(s)</p>
-      {isPending && isMine ? (
-        <span className="inline-block mt-2 px-2 py-1 bg-[#DC4405] text-white text-xs">
-          Aguardando aprovação
-        </span>
-      ) : null}
+    <article className="group h-full overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:border-primary/30 hover:shadow-md">
+      <div className="relative aspect-[4/3] overflow-hidden bg-gradient-to-br from-primary/15 via-accent/10 to-slate-100">
+        {cover ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={cover}
+            alt=""
+            className="h-full w-full object-cover transition duration-300 group-hover:scale-[1.03]"
+          />
+        ) : (
+          <div className="flex h-full items-center justify-center text-sm font-medium text-primary/70">
+            Sem capa ainda
+          </div>
+        )}
+        {isPending && isMine ? (
+          <span className="absolute left-3 top-3 rounded-full bg-[#DC4405] px-2.5 py-1 text-[11px] font-semibold text-white">
+            Aguardando aprovação
+          </span>
+        ) : null}
+      </div>
+      <div className="space-y-1 p-4">
+        <h3 className="line-clamp-2 text-base font-semibold text-primary">{album.title}</h3>
+        {album.description ? (
+          <p className="line-clamp-2 text-sm text-slate-500">{album.description}</p>
+        ) : null}
+        <p className="pt-1 text-xs font-medium text-slate-400">
+          {count} {count === 1 ? 'foto' : 'fotos'}
+        </p>
+      </div>
     </article>
+  );
+}
+
+export function AlbumCardLink({
+  album,
+  viewerId,
+}: AlbumCardProps) {
+  return (
+    <Link href={`/fotos/${album.id}`} className="block h-full focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 rounded-2xl">
+      <AlbumCard album={album} viewerId={viewerId} />
+    </Link>
   );
 }

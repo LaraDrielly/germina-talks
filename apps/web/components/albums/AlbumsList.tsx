@@ -1,8 +1,7 @@
 'use client';
 
-import Link from 'next/link';
 import { useCallback, useEffect, useState } from 'react';
-import { AlbumCard } from '@/components/albums/AlbumCard';
+import { AlbumCardLink } from '@/components/albums/AlbumCard';
 
 type Album = {
   id: string;
@@ -10,7 +9,7 @@ type Album = {
   description: string | null;
   status: string;
   createdBy: string;
-  photos: { id: string }[];
+  photos: Array<{ id: string; url?: string }>;
 };
 
 type AlbumsListProps = {
@@ -89,71 +88,82 @@ export function AlbumsList({ classroomId, title, subtitle }: AlbumsListProps) {
     }
   };
 
-  if (loading && albums.length === 0) {
-    return <p className="text-sm text-[#6B7280]">Carregando álbuns...</p>;
-  }
-
   return (
-    <div>
-      <div className="mb-6 flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <p className="text-xs uppercase tracking-[0.2em] text-[#27AAE1]">Galeria</p>
-          <h2 className="text-3xl font-semibold text-[#3A255B]">{title}</h2>
-          <p className="mt-1 text-sm text-[#6B7280]">{subtitle}</p>
+    <section className="space-y-6">
+      <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <div className="min-w-0">
+          <p className="text-[10px] uppercase tracking-[0.2em] text-accent">Galeria</p>
+          <h2 className="mt-1 text-2xl font-semibold text-primary sm:text-3xl">{title}</h2>
+          <p className="mt-1 text-sm text-slate-500">{subtitle}</p>
         </div>
         <button
           type="button"
           onClick={() => setShowCreate((value) => !value)}
-          className="px-4 py-2 bg-[#3A255B] text-white text-sm font-medium"
+          className="inline-flex shrink-0 items-center justify-center rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-primary/90"
         >
           {showCreate ? 'Cancelar' : 'Novo álbum'}
         </button>
-      </div>
+      </header>
 
       {showCreate ? (
-        <form onSubmit={handleCreate} className="mb-6 flex flex-col gap-3 p-4 border border-[#E5E7EB] bg-[#F5F6F8]">
-          <p className="text-sm font-medium text-[#3C3F4F]">Criar álbum</p>
-          <input
-            value={newTitle}
-            onChange={(event) => setNewTitle(event.target.value)}
-            maxLength={120}
-            required
-            placeholder="Título do álbum"
-            className="border border-[#E5E7EB] px-3 py-2 text-sm bg-white"
-          />
-          <input
-            value={newDescription}
-            onChange={(event) => setNewDescription(event.target.value)}
-            maxLength={2000}
-            placeholder="Descrição (opcional)"
-            className="border border-[#E5E7EB] px-3 py-2 text-sm bg-white"
-          />
+        <form
+          onSubmit={handleCreate}
+          className="space-y-3 rounded-2xl border border-slate-200 bg-slate-50 p-4 sm:p-5"
+        >
+          <p className="text-sm font-semibold text-slate-700">Criar álbum</p>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <input
+              value={newTitle}
+              onChange={(event) => setNewTitle(event.target.value)}
+              maxLength={120}
+              required
+              placeholder="Título do álbum"
+              className="rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-700 outline-none focus:border-accent focus:ring-2 focus:ring-accent/20 sm:col-span-2"
+            />
+            <input
+              value={newDescription}
+              onChange={(event) => setNewDescription(event.target.value)}
+              maxLength={2000}
+              placeholder="Descrição (opcional)"
+              className="rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-700 outline-none focus:border-accent focus:ring-2 focus:ring-accent/20 sm:col-span-2"
+            />
+          </div>
           <button
             type="submit"
             disabled={creating}
-            className="self-start px-4 py-2 bg-[#11C76F] text-white disabled:opacity-50"
+            className="inline-flex rounded-xl bg-[#11C76F] px-4 py-2.5 text-sm font-semibold text-white transition hover:brightness-95 disabled:opacity-50"
           >
             {creating ? 'Criando...' : 'Criar álbum'}
           </button>
         </form>
       ) : null}
 
-      {error ? <p className="mb-4 text-sm text-[#DC4405]">{error}</p> : null}
-
-      {albums.length === 0 ? (
-        <p className="text-sm text-[#6B7280]">
-          Nenhum álbum por aqui ainda. Crie um álbum e abra-o para enviar fotos.
+      {error ? (
+        <p className="rounded-xl border border-[#DC4405]/20 bg-[#DC4405]/5 px-3 py-2 text-sm text-[#DC4405]">
+          {error}
         </p>
+      ) : null}
+
+      {loading && albums.length === 0 ? (
+        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+          {[1, 2, 3].map((item) => (
+            <div key={item} className="h-56 animate-pulse rounded-2xl bg-slate-100" />
+          ))}
+        </div>
+      ) : albums.length === 0 ? (
+        <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-6 py-12 text-center">
+          <p className="text-base font-semibold text-primary">Nenhum álbum ainda</p>
+          <p className="mt-2 text-sm text-slate-500">
+            Crie o primeiro álbum e depois abra-o para enviar fotos.
+          </p>
+        </div>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
           {albums.map((album) => (
-            <Link key={album.id} href={`/fotos/${album.id}`} className="block">
-              <AlbumCard album={album} viewerId={viewerId} />
-              <p className="mt-1 text-xs text-[#27AAE1]">Abrir álbum para enviar fotos →</p>
-            </Link>
+            <AlbumCardLink key={album.id} album={album} viewerId={viewerId} />
           ))}
         </div>
       )}
-    </div>
+    </section>
   );
 }

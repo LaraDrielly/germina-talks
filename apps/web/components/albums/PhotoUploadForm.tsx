@@ -65,59 +65,69 @@ export function PhotoUploadForm({ albumId, onSuccess }: PhotoUploadFormProps) {
   return (
     <form
       onSubmit={handleSubmit}
-      className="flex flex-col gap-4 rounded-xl border-2 border-[#3A255B] bg-[#F5F6F8] p-5"
+      className="rounded-2xl border border-slate-200 bg-slate-50 p-4 sm:p-5"
     >
-      <div>
-        <h3 className="text-lg font-semibold text-[#3A255B]">Enviar foto</h3>
-        <p className="mt-1 text-sm text-[#6B7280]">
-          Escolha um arquivo e clique em Enviar foto. Upload local (sem S3), até 10 MB.
+      <div className="mb-4">
+        <h3 className="text-base font-semibold text-primary">Enviar foto</h3>
+        <p className="mt-1 text-sm text-slate-500">
+          JPEG, PNG ou WebP · até 10 MB · armazenamento local
         </p>
       </div>
 
-      <label htmlFor={inputId} className="block text-sm font-medium text-[#3C3F4F]">
-        Arquivo da foto
-      </label>
-      <input
-        id={inputId}
-        type="file"
-        name="file"
-        accept="image/jpeg,image/png,image/webp"
-        disabled={isUploading}
-        className="block w-full cursor-pointer rounded-lg border border-[#E5E7EB] bg-white px-3 py-3 text-sm text-[#3C3F4F] file:mr-4 file:cursor-pointer file:rounded-md file:border-0 file:bg-[#3A255B] file:px-4 file:py-2 file:text-sm file:font-semibold file:text-white hover:file:bg-[#27AAE1]"
-        onChange={(event) => {
-          const file = event.target.files?.[0];
-          setFileName(file ? file.name : '');
-          setError('');
-        }}
-      />
-      {fileName ? (
-        <p className="text-sm text-[#11C76F]">Selecionado: {fileName}</p>
-      ) : (
-        <p className="text-sm text-[#6B7280]">Nenhum arquivo selecionado ainda.</p>
-      )}
+      <div className="grid gap-3 md:grid-cols-[1fr_auto] md:items-end">
+        <div className="space-y-3">
+          <div>
+            <label htmlFor={inputId} className="mb-1.5 block text-sm font-medium text-slate-700">
+              Arquivo
+            </label>
+            <input
+              id={inputId}
+              type="file"
+              name="file"
+              accept="image/jpeg,image/png,image/webp"
+              disabled={isUploading}
+              className="block w-full cursor-pointer rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-700 file:mr-3 file:cursor-pointer file:rounded-lg file:border-0 file:bg-primary file:px-3 file:py-1.5 file:text-sm file:font-semibold file:text-white hover:file:bg-primary/90"
+              onChange={(event) => {
+                const file = event.target.files?.[0];
+                setFileName(file ? file.name : '');
+                setError('');
+              }}
+            />
+            <p className="mt-1.5 text-xs text-slate-500">
+              {fileName ? `Selecionado: ${fileName}` : 'Nenhum arquivo selecionado'}
+            </p>
+          </div>
 
-      <label className="block text-sm font-medium text-[#3C3F4F]" htmlFor={`${inputId}-caption`}>
-        Legenda (opcional)
-      </label>
-      <input
-        id={`${inputId}-caption`}
-        type="text"
-        name="caption"
-        maxLength={200}
-        placeholder="Ex.: Feira de ciências"
-        className="rounded-lg border border-[#E5E7EB] bg-white px-3 py-2 text-sm"
-        disabled={isUploading}
-      />
+          <div>
+            <label className="mb-1.5 block text-sm font-medium text-slate-700" htmlFor={`${inputId}-caption`}>
+              Legenda (opcional)
+            </label>
+            <input
+              id={`${inputId}-caption`}
+              type="text"
+              name="caption"
+              maxLength={200}
+              placeholder="Ex.: Feira de ciências"
+              className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-700 outline-none focus:border-accent focus:ring-2 focus:ring-accent/20"
+              disabled={isUploading}
+            />
+          </div>
+        </div>
 
-      {error ? <p className="text-sm font-medium text-[#DC4405]">{error}</p> : null}
+        <button
+          type="submit"
+          disabled={isUploading}
+          className="inline-flex h-11 w-full items-center justify-center rounded-xl bg-[#11C76F] px-5 text-sm font-semibold text-white transition hover:brightness-95 disabled:cursor-not-allowed disabled:opacity-60 md:w-auto md:min-w-[140px]"
+        >
+          {isUploading ? 'Enviando...' : 'Enviar foto'}
+        </button>
+      </div>
 
-      <button
-        type="submit"
-        disabled={isUploading}
-        className="w-full rounded-lg bg-[#11C76F] px-4 py-3 text-base font-semibold text-white hover:brightness-95 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto sm:self-start"
-      >
-        {isUploading ? 'Enviando...' : 'Enviar foto'}
-      </button>
+      {error ? (
+        <p className="mt-3 rounded-xl border border-[#DC4405]/20 bg-[#DC4405]/5 px-3 py-2 text-sm text-[#DC4405]">
+          {error}
+        </p>
+      ) : null}
     </form>
   );
 }

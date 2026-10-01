@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import { PhotoTile } from '@/components/albums/PhotoTile';
@@ -44,35 +45,66 @@ export default function AlbumDetailPage() {
   }, [params.id, reloadKey]);
 
   if (error) {
-    return <p className="text-sm text-[#DC4405]">{error}</p>;
+    return (
+      <div className="space-y-4">
+        <Link href="/fotos" className="text-sm font-medium text-accent hover:underline">
+          ← Voltar para fotos
+        </Link>
+        <p className="rounded-xl border border-[#DC4405]/20 bg-[#DC4405]/5 px-3 py-2 text-sm text-[#DC4405]">
+          {error}
+        </p>
+      </div>
+    );
   }
 
   if (!album) {
-    return <p className="text-sm text-[#6B7280]">Carregando álbum...</p>;
+    return (
+      <div className="space-y-4">
+        <div className="h-4 w-28 animate-pulse rounded bg-slate-100" />
+        <div className="h-8 w-2/3 animate-pulse rounded bg-slate-100" />
+        <div className="h-40 animate-pulse rounded-2xl bg-slate-100" />
+      </div>
+    );
   }
 
   return (
-    <div className="space-y-6">
-      <div>
-        <p className="text-xs uppercase tracking-[0.2em] text-[#27AAE1]">Álbum</p>
-        <h2 className="text-3xl font-semibold text-[#3A255B]">{album.title}</h2>
-        {album.description ? <p className="mt-1 text-sm text-[#6B7280]">{album.description}</p> : null}
-      </div>
+    <section className="space-y-6">
+      <header className="space-y-3 border-b border-slate-200 pb-5">
+        <Link href="/fotos" className="inline-flex text-sm font-medium text-accent hover:underline">
+          ← Voltar para fotos
+        </Link>
+        <div>
+          <p className="text-[10px] uppercase tracking-[0.2em] text-accent">Álbum</p>
+          <h2 className="mt-1 text-2xl font-semibold text-primary sm:text-3xl">{album.title}</h2>
+          {album.description ? (
+            <p className="mt-2 max-w-2xl text-sm text-slate-500">{album.description}</p>
+          ) : null}
+        </div>
+      </header>
 
       <PhotoUploadForm albumId={album.id} onSuccess={() => setReloadKey((value) => value + 1)} />
 
-      <div>
-        <h3 className="mb-3 text-lg font-semibold text-[#3C3F4F]">Fotos do álbum</h3>
+      <div className="space-y-3">
+        <div className="flex items-center justify-between gap-3">
+          <h3 className="text-base font-semibold text-slate-700">Fotos do álbum</h3>
+          <span className="text-xs font-medium text-slate-400">
+            {album.photos.length} {album.photos.length === 1 ? 'foto' : 'fotos'}
+          </span>
+        </div>
+
         {album.photos.length === 0 ? (
-          <p className="text-sm text-[#6B7280]">Nenhuma foto neste álbum ainda. Use o formulário acima para enviar.</p>
+          <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-6 py-10 text-center">
+            <p className="font-semibold text-primary">Nenhuma foto ainda</p>
+            <p className="mt-1 text-sm text-slate-500">Use o formulário acima para enviar a primeira.</p>
+          </div>
         ) : (
-          <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
             {album.photos.map((photo) => (
               <PhotoTile key={photo.id} photo={photo} viewerId={viewerId} />
             ))}
           </div>
         )}
       </div>
-    </div>
+    </section>
   );
 }
