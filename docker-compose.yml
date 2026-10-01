@@ -10,18 +10,22 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
-  minio:
-    image: minio/minio:latest
-    command: server /data --console-address ":9001"
+  storage:
+    image: rustfs/rustfs:latest
+    command: /data
     environment:
-      MINIO_ROOT_USER: germina
-      MINIO_ROOT_PASSWORD: germina_local
+      RUSTFS_ACCESS_KEY: germina
+      RUSTFS_SECRET_KEY: germina_local
+      RUSTFS_ADDRESS: ":9000"
+      RUSTFS_CONSOLE_ADDRESS: ":9001"
+      RUSTFS_CONSOLE_ENABLE: "true"
+      RUSTFS_CORS_ALLOWED_ORIGINS: http://localhost:3000
     ports:
       - "9000:9000"
       - "9001:9001"
     volumes:
-      - minio_data:/data
+      - storage_data:/data
 
 volumes:
   postgres_data:
-  minio_data:
+  storage_data:

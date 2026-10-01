@@ -1,10 +1,6 @@
-# Álbum de fotos Specification
+# Spec Delta: Álbum de fotos
 
-## Purpose
-
-Permite organizar e compartilhar fotos dos eventos e momentos escolares em álbuns globais ou restritos aos membros de uma sala.
-
-## Requirements
+## MODIFIED Requirements
 
 ### Requirement: Criação e consulta de álbuns por escopo
 O sistema MUST permitir que professores e administradores criem álbuns globais ou de salas que administram, com título, descrição opcional e contagem de fotos; membros podem consultar apenas os escopos aos quais têm acesso.
