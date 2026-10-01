@@ -99,9 +99,12 @@ GET /api/v1/admin/users?page=1&limit=20
 | `/bulletin/:id` | GET, PATCH, DELETE | communication/bulletin-board |
 | `/bulletin/:id/pin` | POST, DELETE | communication/bulletin-board |
 | `/albums` | GET, POST | communication/photo-album |
-| `/albums/:id` | GET, DELETE | communication/photo-album |
-| `/albums/:id/photos` | GET, POST | communication/photo-album |
-| `/photos/upload-url` | POST | communication/photo-album |
+| `/albums/:id` | GET | communication/photo-album |
+| `/albums/:id/photos` | POST (multipart) | communication/photo-album |
+| `/moderation/pending` | GET | communication/photo-album (admin) |
+| `/moderation/albums/:id` | PATCH | communication/photo-album (admin) |
+| `/moderation/photos/:id` | PATCH | communication/photo-album (admin) |
+| `/photos/upload-url` | — | adiado (S3); MVP usa multipart em `/albums/:id/photos` |
 
 ## Convenções de request body
 
@@ -137,7 +140,30 @@ POST /api/v1/albums
 {
   "title": "Feira de Ciências 2026",
   "description": "Fotos do evento",
-  "scopeType": "global"
+  "scopeType": "classroom",
+  "classroomId": "uuid-da-sala"
+}
+```
+
+### Upload de foto (multipart)
+
+```http
+POST /api/v1/albums/:id/photos
+Content-Type: multipart/form-data
+
+file: <imagem jpeg|png|webp <= 10MB>
+caption: opcional
+```
+
+Identidade e papel vêm da sessão Auth.js (não enviar `userRole`/`createdById` no body).
+
+### Moderar conteúdo
+
+```json
+PATCH /api/v1/moderation/albums/:id
+PATCH /api/v1/moderation/photos/:id
+{
+  "status": "approved"
 }
 ```
 

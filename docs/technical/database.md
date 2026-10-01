@@ -130,6 +130,9 @@ CREATE TYPE member_role AS ENUM ('student', 'teacher');
 | scope_type | scope_type | |
 | classroom_id | UUID FK NULL | |
 | created_by | UUID FK → users | |
+| status | content_status | `pending` \| `approved` \| `rejected` |
+| moderated_by | UUID FK NULL → users | |
+| moderated_at | timestamptz NULL | |
 | created_at | timestamptz | |
 | updated_at | timestamptz | |
 
@@ -139,10 +142,15 @@ CREATE TYPE member_role AS ENUM ('student', 'teacher');
 |--------|------|-------|
 | id | UUID PK | |
 | album_id | UUID FK → albums | |
-| storage_key | VARCHAR | Chave no S3/MinIO |
+| url | VARCHAR(512) | Caminho público (MVP local `/uploads/...`) |
 | uploaded_by | UUID FK → users | |
 | caption | VARCHAR(200) NULL | |
+| status | content_status | `pending` \| `approved` \| `rejected` |
+| moderated_by | UUID FK NULL → users | |
+| moderated_at | timestamptz NULL | |
 | created_at | timestamptz | |
+
+> MVP de storage: upload multipart grava em `apps/web/public/uploads`. Presigned S3/MinIO fica para follow-up.
 
 ## Escopo transversal
 
