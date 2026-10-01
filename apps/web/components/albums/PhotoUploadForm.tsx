@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useId, useRef, useState } from 'react';
 
 type PhotoUploadFormProps = {
   albumId: string;
@@ -8,8 +8,11 @@ type PhotoUploadFormProps = {
 };
 
 export function PhotoUploadForm({ albumId, onSuccess }: PhotoUploadFormProps) {
+  const inputId = useId();
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState('');
+  const [fileName, setFileName] = useState('');
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -17,8 +20,7 @@ export function PhotoUploadForm({ albumId, onSuccess }: PhotoUploadFormProps) {
     setError('');
 
     const form = event.currentTarget;
-    const fileInput = form.elements.namedItem('file') as HTMLInputElement;
-    const file = fileInput?.files?.[0];
+    const file = fileInputRef.current?.files?.[0];
 
     if (!file) {
       setError('Selecione uma foto para enviar.');
@@ -51,6 +53,7 @@ export function PhotoUploadForm({ albumId, onSuccess }: PhotoUploadFormProps) {
       }
 
       form.reset();
+      setFileName('');
       onSuccess?.();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erro ao enviar foto.');
@@ -61,26 +64,56 @@ export function PhotoUploadForm({ albumId, onSuccess }: PhotoUploadFormProps) {
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-3 p-4 border border-[#E5E7EB] bg-[#F5F6F8]">
-      <h3 className="font-semibold text-[#3C3F4F]">Adicionar foto</h3>
+      <div>
+        <h3 className="font-semibold text-[#3C3F4F]">Adicionar foto</h3>
+        <p className="text-xs text-[#6B7280] mt-1">
+          Upload local no servidor (JPEG, PNG ou WebP, até 10 MB). Não usa S3 neste MVP.
+        </p>
+      </div>
+
       <input
+        ref={fileInputRef}
+        id={inputId}
         type="file"
         name="file"
         accept="image/jpeg,image/png,image/webp"
         disabled={isUploading}
-        className="file:mr-4 file:py-2 file:px-4 file:border-0 file:text-sm file:font-semibold file:bg-[#3A255B] file:text-white"
+        className="sr-only"
+        onChange={(event) => {
+          const file = event.target.files?.[0];
+          setFileName(file ? file.name : '');
+          setError('');
+        }}
       />
+
+      <div className="flex flex-wrap items-center gap-3">
+        <button
+          type="button"
+          disabled={isUploading}
+          onClick={() => fileInputRef.current?.click()}
+          className="px-4 py-2 bg-[#3A255B] text-white text-sm font-medium disabled:opacity-50"
+        >
+          Escolher arquivo
+        </button>
+        <span className="text-sm text-[#6B7280]">
+          {fileName || 'Nenhum arquivo selecionado'}
+        </span>
+      </div>
+
       <input
         type="text"
         name="caption"
         maxLength={200}
         placeholder="Legenda (opcional)"
-        className="border border-[#E5E7EB] px-3 py-2 text-sm"
+        className="border border-[#E5E7EB] px-3 py-2 text-sm bg-white"
         disabled={isUploading}
       />
+
       {error ? <p className="text-sm text-[#DC4405]">{error}</p> : null}
+
       <button
         type="submit"
-        disabled={isUploading}
+        disabled={isUploading || !fileName}
         className="self-start px-4 py-2 bg-[#11C76F] text-white disabled:opacity-50"
       >
         {isUploading ? 'Enviando...' : 'Enviar foto'}
