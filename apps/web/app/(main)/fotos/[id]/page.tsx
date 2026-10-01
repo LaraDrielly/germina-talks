@@ -98,7 +98,7 @@ export default function AlbumDetailPage() {
             <p className="mt-1 text-sm text-slate-500">Use o formulário acima para enviar a primeira.</p>
           </div>
         ) : (
-          <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 sm:gap-3 md:grid-cols-5 lg:grid-cols-6">
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
             {album.photos.map((photo) => (
               <PhotoTile key={photo.id} photo={photo} viewerId={viewerId} />
             ))}

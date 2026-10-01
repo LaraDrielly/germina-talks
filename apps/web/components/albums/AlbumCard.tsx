@@ -20,7 +20,7 @@ export function AlbumCard({ album, viewerId }: AlbumCardProps) {
 
   return (
     <article className="group h-full overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:border-primary/30 hover:shadow-md">
-      <div className="relative aspect-[4/3] overflow-hidden bg-gradient-to-br from-primary/15 via-accent/10 to-slate-100">
+      <div className="relative aspect-[16/10] overflow-hidden bg-gradient-to-br from-primary/15 via-accent/10 to-slate-100 sm:aspect-[5/3]">
         {cover ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
