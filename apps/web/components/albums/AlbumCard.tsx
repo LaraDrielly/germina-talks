@@ -19,22 +19,22 @@ export function AlbumCard({ album, viewerId }: AlbumCardProps) {
   const count = album.photos?.length ?? 0;
 
   return (
-    <article className="group h-full overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:border-primary/30 hover:shadow-md">
-      <div className="relative aspect-[16/10] overflow-hidden bg-gradient-to-br from-primary/15 via-accent/10 to-slate-100 sm:aspect-[5/3]">
+    <article className="group flex h-full flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:border-primary/30 hover:shadow-md">
+      <div className="relative h-36 w-full shrink-0 overflow-hidden bg-gradient-to-br from-primary/15 via-accent/10 to-slate-100">
         {cover ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
             src={cover}
             alt=""
-            className="h-full w-full object-cover transition duration-300 group-hover:scale-[1.03]"
+            className="absolute inset-0 h-full w-full object-cover transition duration-300 group-hover:scale-[1.03]"
           />
         ) : (
-          <div className="flex h-full items-center justify-center text-sm font-medium text-primary/70">
+          <div className="absolute inset-0 flex items-center justify-center text-sm font-medium text-primary/70">
             Sem capa ainda
           </div>
         )}
         {isPending && isMine ? (
-          <span className="absolute left-3 top-3 rounded-full bg-[#DC4405] px-2.5 py-1 text-[11px] font-semibold text-white">
+          <span className="absolute left-3 top-3 z-10 rounded-full bg-[#DC4405] px-2.5 py-1 text-[11px] font-semibold text-white">
             Aguardando aprovação
           </span>
         ) : null}

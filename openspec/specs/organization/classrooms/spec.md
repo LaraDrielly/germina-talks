@@ -2,7 +2,7 @@
 
 **Prioridade:** P0 | **Escopo:** organizacional
 
-## Overview
+## Purpose
 
 Salas representam turmas ou grupos dentro do Instituto J&F, vinculados a uma frente de ensino. São a unidade organizacional para conteúdo com escopo de sala.
 
@@ -10,7 +10,7 @@ Salas representam turmas ou grupos dentro do Instituto J&F, vinculados a uma fre
 
 - **Aluno** — vê e participa das salas em que é membro
 - **Professor** — gerencia conteúdo das salas em que leciona
-- **Coordenação** — visualiza todas as salas
+- **Coordenação** — visualiza todas as salas e gerencia membros
 
 ## Scenarios
 
@@ -36,20 +36,52 @@ Salas representam turmas ou grupos dentro do Instituto J&F, vinculados a uma fre
 
 ## Requirements
 
-### MUST
-- Cada sala tem: nome, slug, frente de ensino, ano letivo
-- Frentes de ensino: `business`, `tech`, `factory`
-- Membros vinculados via tabela `classroom_members`
-- Rotas por sala: `/salas/[id]/feed`, `/mural`, `/fotos`
-- Cor visual da frente aplicada na UI da sala
+### Requirement: Sala tem identidade e frente de ensino
+O sistema MUST associar a cada sala nome, slug, frente de ensino (`business`, `tech`, `factory`) e ano letivo. A UI da sala MUST aplicar a cor visual da frente.
 
-### SHOULD
-- Slug amigável para URL (ex: `3-ads-2026`)
-- Agrupar salas por frente de ensino na sidebar
+#### Scenario: Sala exibe frente de ensino visualmente
+- **WHEN** o aluno navega para uma sala da Escola de Tecnologia
+- **THEN** a interface usa a cor da frente correspondente
 
-### WON'T
-- Criação de salas por alunos no MVP (admin cria)
-- Salas aninhadas (sub-salas)
+### Requirement: Membros vinculados às salas
+O sistema MUST vincular usuários às salas como membros e MUST restringir a listagem: alunos e professores veem apenas salas das quais são membros; coordenação vê todas.
+
+#### Scenario: Listagem de salas
+- **WHEN** um usuário autenticado acessa a listagem de salas
+- **THEN** vê apenas salas das quais é membro (aluno/professor) ou todas (coordenação)
+
+#### Scenario: Aluno vê suas salas na sidebar
+- **WHEN** um aluno membro de duas salas acessa a plataforma
+- **THEN** ambas as salas aparecem na navegação lateral
+
+### Requirement: Acesso a rotas da sala exige associação
+O sistema MUST restringir rotas da sala (`/salas/[id]/feed`, `/mural`, `/fotos`) a membros (ou coordenação).
+
+#### Scenario: Aluno acessa sala da qual não é membro
+- **WHEN** um aluno que não é membro tenta acessar o feed da sala
+- **THEN** o sistema exibe erro de acesso negado
+
+### Requirement: Coordenação gerencia membros das salas
+A coordenação MUST conseguir associar alunos e professores a uma sala e remover membros existentes. Cada associação MUST registrar se o membro participa como aluno ou professor. Usuários sem papel global de coordenação MUST ser impedidos de alterar essas associações.
+
+#### Scenario: Coordenação adiciona membro à sala
+- **WHEN** um usuário de coordenação associa um aluno ou professor a uma sala com seu papel na sala
+- **THEN** o usuário passa a integrar a sala com o papel informado
+
+#### Scenario: Coordenação remove membro da sala
+- **WHEN** um usuário de coordenação remove um membro de uma sala
+- **THEN** a associação do usuário com a sala deixa de existir
+
+#### Scenario: Usuário sem papel de coordenação tenta alterar membros
+- **WHEN** um aluno ou professor tenta adicionar ou remover um membro de uma sala
+- **THEN** a alteração é negada e as associações permanecem inalteradas
+
+### Requirement: Convenções de slug e agrupamento
+O sistema SHOULD usar slug amigável para URL e SHOULD agrupar salas por frente de ensino na sidebar. O sistema MUST NOT permitir criação de salas por alunos nem salas aninhadas no MVP.
+
+#### Scenario: Slug amigável na listagem
+- **WHEN** uma sala é criada com nome descritivo
+- **THEN** o slug permanece adequado para uso em URL
 
 ## Scope
 

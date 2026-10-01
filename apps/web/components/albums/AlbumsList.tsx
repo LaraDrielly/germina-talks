@@ -147,7 +147,13 @@ export function AlbumsList({ classroomId, title, subtitle }: AlbumsListProps) {
       {loading && albums.length === 0 ? (
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
           {[1, 2, 3].map((item) => (
-            <div key={item} className="h-56 animate-pulse rounded-2xl bg-slate-100" />
+            <div key={item} className="overflow-hidden rounded-2xl border border-slate-200 bg-white">
+              <div className="h-36 animate-pulse bg-slate-100" />
+              <div className="space-y-2 p-4">
+                <div className="h-4 w-2/3 animate-pulse rounded bg-slate-100" />
+                <div className="h-3 w-1/3 animate-pulse rounded bg-slate-100" />
+              </div>
+            </div>
           ))}
         </div>
       ) : albums.length === 0 ? (
