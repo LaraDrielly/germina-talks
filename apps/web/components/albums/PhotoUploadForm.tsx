@@ -1,6 +1,6 @@
 'use client';
 
-import { useId, useRef, useState } from 'react';
+import { useId, useState } from 'react';
 
 type PhotoUploadFormProps = {
   albumId: string;
@@ -9,7 +9,6 @@ type PhotoUploadFormProps = {
 
 export function PhotoUploadForm({ albumId, onSuccess }: PhotoUploadFormProps) {
   const inputId = useId();
-  const fileInputRef = useRef<HTMLInputElement>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState('');
   const [fileName, setFileName] = useState('');
@@ -20,7 +19,8 @@ export function PhotoUploadForm({ albumId, onSuccess }: PhotoUploadFormProps) {
     setError('');
 
     const form = event.currentTarget;
-    const file = fileInputRef.current?.files?.[0];
+    const fileInput = form.elements.namedItem('file') as HTMLInputElement | null;
+    const file = fileInput?.files?.[0];
 
     if (!file) {
       setError('Selecione uma foto para enviar.');
@@ -63,58 +63,58 @@ export function PhotoUploadForm({ albumId, onSuccess }: PhotoUploadFormProps) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-3 p-4 border border-[#E5E7EB] bg-[#F5F6F8]">
+    <form
+      onSubmit={handleSubmit}
+      className="flex flex-col gap-4 rounded-xl border-2 border-[#3A255B] bg-[#F5F6F8] p-5"
+    >
       <div>
-        <h3 className="font-semibold text-[#3C3F4F]">Adicionar foto</h3>
-        <p className="text-xs text-[#6B7280] mt-1">
-          Upload local no servidor (JPEG, PNG ou WebP, até 10 MB). Não usa S3 neste MVP.
+        <h3 className="text-lg font-semibold text-[#3A255B]">Enviar foto</h3>
+        <p className="mt-1 text-sm text-[#6B7280]">
+          Escolha um arquivo e clique em Enviar foto. Upload local (sem S3), até 10 MB.
         </p>
       </div>
 
+      <label htmlFor={inputId} className="block text-sm font-medium text-[#3C3F4F]">
+        Arquivo da foto
+      </label>
       <input
-        ref={fileInputRef}
         id={inputId}
         type="file"
         name="file"
         accept="image/jpeg,image/png,image/webp"
         disabled={isUploading}
-        className="sr-only"
+        className="block w-full cursor-pointer rounded-lg border border-[#E5E7EB] bg-white px-3 py-3 text-sm text-[#3C3F4F] file:mr-4 file:cursor-pointer file:rounded-md file:border-0 file:bg-[#3A255B] file:px-4 file:py-2 file:text-sm file:font-semibold file:text-white hover:file:bg-[#27AAE1]"
         onChange={(event) => {
           const file = event.target.files?.[0];
           setFileName(file ? file.name : '');
           setError('');
         }}
       />
+      {fileName ? (
+        <p className="text-sm text-[#11C76F]">Selecionado: {fileName}</p>
+      ) : (
+        <p className="text-sm text-[#6B7280]">Nenhum arquivo selecionado ainda.</p>
+      )}
 
-      <div className="flex flex-wrap items-center gap-3">
-        <button
-          type="button"
-          disabled={isUploading}
-          onClick={() => fileInputRef.current?.click()}
-          className="px-4 py-2 bg-[#3A255B] text-white text-sm font-medium disabled:opacity-50"
-        >
-          Escolher arquivo
-        </button>
-        <span className="text-sm text-[#6B7280]">
-          {fileName || 'Nenhum arquivo selecionado'}
-        </span>
-      </div>
-
+      <label className="block text-sm font-medium text-[#3C3F4F]" htmlFor={`${inputId}-caption`}>
+        Legenda (opcional)
+      </label>
       <input
+        id={`${inputId}-caption`}
         type="text"
         name="caption"
         maxLength={200}
-        placeholder="Legenda (opcional)"
-        className="border border-[#E5E7EB] px-3 py-2 text-sm bg-white"
+        placeholder="Ex.: Feira de ciências"
+        className="rounded-lg border border-[#E5E7EB] bg-white px-3 py-2 text-sm"
         disabled={isUploading}
       />
 
-      {error ? <p className="text-sm text-[#DC4405]">{error}</p> : null}
+      {error ? <p className="text-sm font-medium text-[#DC4405]">{error}</p> : null}
 
       <button
         type="submit"
-        disabled={isUploading || !fileName}
-        className="self-start px-4 py-2 bg-[#11C76F] text-white disabled:opacity-50"
+        disabled={isUploading}
+        className="w-full rounded-lg bg-[#11C76F] px-4 py-3 text-base font-semibold text-white hover:brightness-95 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto sm:self-start"
       >
         {isUploading ? 'Enviando...' : 'Enviar foto'}
       </button>

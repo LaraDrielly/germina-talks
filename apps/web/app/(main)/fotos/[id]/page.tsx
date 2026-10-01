@@ -54,21 +54,25 @@ export default function AlbumDetailPage() {
   return (
     <div className="space-y-6">
       <div>
+        <p className="text-xs uppercase tracking-[0.2em] text-[#27AAE1]">Álbum</p>
         <h2 className="text-3xl font-semibold text-[#3A255B]">{album.title}</h2>
         {album.description ? <p className="mt-1 text-sm text-[#6B7280]">{album.description}</p> : null}
       </div>
 
       <PhotoUploadForm albumId={album.id} onSuccess={() => setReloadKey((value) => value + 1)} />
 
-      {album.photos.length === 0 ? (
-        <p className="text-sm text-[#6B7280]">Nenhuma foto neste álbum ainda.</p>
-      ) : (
-        <div className="grid gap-3 grid-cols-2 md:grid-cols-3">
-          {album.photos.map((photo) => (
-            <PhotoTile key={photo.id} photo={photo} viewerId={viewerId} />
-          ))}
-        </div>
-      )}
+      <div>
+        <h3 className="mb-3 text-lg font-semibold text-[#3C3F4F]">Fotos do álbum</h3>
+        {album.photos.length === 0 ? (
+          <p className="text-sm text-[#6B7280]">Nenhuma foto neste álbum ainda. Use o formulário acima para enviar.</p>
+        ) : (
+          <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
+            {album.photos.map((photo) => (
+              <PhotoTile key={photo.id} photo={photo} viewerId={viewerId} />
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
