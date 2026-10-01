@@ -68,9 +68,9 @@ Convenções REST entre frontend e backend. Endpoints específicos de cada featu
 GET /api/v1/posts?cursor=<id>&limit=20&classroomId=<uuid>
 ```
 
-- `limit`: padrão 20, máximo 50
+- `limit`: padrão e máximo 20
 - `cursor`: ID do último item da página anterior
-- `hasMore: false` quando não há mais itens
+- resposta: `{ data: [...], nextCursor: "uuid-ou-null" }`; `nextCursor: null` indica fim do feed
 
 ### Offset (admin, futuro)
 
@@ -86,14 +86,22 @@ GET /api/v1/admin/users?page=1&limit=20
 | `/classrooms` | GET | organization/classrooms |
 | `/classrooms/:id/members` | GET | organization/classrooms |
 | `/posts` | GET, POST | communication/posts |
-| `/posts/:id` | GET, DELETE | communication/posts |
+| `/posts/:id` | DELETE | communication/posts |
 | `/bulletin` | GET, POST | communication/bulletin-board |
-| `/bulletin/:id` | GET, PATCH, DELETE | communication/bulletin-board |
-| `/bulletin/:id/pin` | POST, DELETE | communication/bulletin-board |
+| `/bulletin/:id/pin` | POST | communication/bulletin-board |
 | `/albums` | GET, POST | communication/photo-album |
-| `/albums/:id` | GET, DELETE | communication/photo-album |
 | `/albums/:id/photos` | GET, POST | communication/photo-album |
 | `/photos/upload-url` | POST | communication/photo-album |
+
+### Feed e fotos (MVP)
+
+- `GET /api/v1/posts` retorna até 20 publicações acessíveis em ordem cronológica decrescente. Sem filtro, reúne publicações globais e das salas vinculadas ao usuário. `scopeType`, `classroomId`, `cursor` e `limit` são opcionais.
+- `POST /api/v1/posts` cria uma publicação de 1 a 280 caracteres no escopo global ou em sala acessível; `DELETE /api/v1/posts/:id` faz soft delete e somente o autor pode executar.
+- `GET /api/v1/albums` lista álbuns globais e de salas acessíveis; `classroomId` opcional filtra por sala. Retorna contagem e URL de capa temporária quando há fotos.
+- `POST /api/v1/albums` cria álbum. Apenas professor ou coordenação; professor precisa ser membro-professor da sala indicada.
+- `POST /api/v1/photos/upload-url` recebe `albumId`, `fileName`, `contentType`, `sizeBytes` e legenda opcional; devolve URL temporária e chave de objeto. O cliente envia bytes com `PUT` direto ao storage.
+- `GET /api/v1/albums/:id/photos` retorna álbum, metadados e URLs de leitura temporárias. `POST` na mesma rota confirma o upload com `objectKey`, `contentType`, `sizeBytes` e legenda. O servidor confere escopo, metadados, assinatura do arquivo, limite de 10 MB e máximo de 50 fotos.
+- Fotos aceitas: `image/jpeg`, `image/png`, `image/webp`. Chaves de storage são privadas; URLs assinadas expiram em cinco minutos.
 
 ## Convenções de request body
 
@@ -141,6 +149,13 @@ POST /api/v1/albums
 | `classroomId` | UUID | Filtrar por sala |
 | `cursor` | string | Paginação cursor |
 | `limit` | number | Itens por página |
+
+### Mural (MVP implementado)
+
+- `GET /api/v1/bulletin` retorna `{ data: [...] }`, sem paginação no MVP. Aceita `scopeType` e `classroomId`; o servidor verifica o vínculo antes de retornar conteúdo da sala.
+- `POST /api/v1/bulletin` cria recado; título, corpo e escopo são validados com Zod. Aluno/professor publicam em sala vinculada; coordenação também pode publicar globalmente.
+- `POST /api/v1/bulletin/:id/pin` fixa um recado. Remover a fixação, editar e excluir recados ainda não fazem parte do MVP.
+- Todas essas rotas devolvem erros JSON no formato deste documento; falta de sessão resulta em `401`, e falta de permissão resulta em `403`.
 
 ## Versionamento
 

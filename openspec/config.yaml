@@ -31,9 +31,9 @@ rules:
     - Seção obrigatória "Frontend changes"
     - Seguir padrões em docs/technical/
   tasks:
-    - Agrupar: Spec, Database, Backend, Frontend, Docs
-    - Máximo 2h por task
-    - Separar migration, API, UI, testes
+    - "Agrupar: Spec, Database, Backend, Frontend, Docs"
+    - "Máximo 2h por task"
+    - "Separar migration, API, UI, testes"
 
 operations:
   apply:

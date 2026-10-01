@@ -10,7 +10,7 @@ Arquitetura da interface. Componentes visuais seguem [design-system.md](../desig
 | TypeScript | Tipagem em todo o app |
 | Tailwind CSS | Estilos com tokens do design system |
 | shadcn/ui | Componentes base (Button, Card, Dialog…) |
-| React Query (TanStack) | Cache e mutations no client |
+| Fetch + estado React | Consultas, formulários e mutations no MVP |
 | Auth.js | `useSession()` para estado de auth |
 
 ## Estrutura de pastas
@@ -63,6 +63,10 @@ apps/web/
 | `/salas/[id]/mural` | Mural da sala | Recados da turma |
 | `/salas/[id]/fotos` | Fotos da sala | Álbuns da turma |
 
+O mural global reúne os recados globais e os recados das salas acessíveis ao usuário. `/salas/[id]/mural` abre o mural filtrado da sala e retorna 404 para quem não tem vínculo com ela (exceto coordenação).
+
+O feed global reúne publicações globais e das salas acessíveis ao usuário. Usa cursor de 20 itens e carrega a página seguinte ao chegar ao fim da lista; `/salas/[id]/feed` é restrita aos membros da sala. `/fotos` lista álbuns acessíveis; `/salas/[id]/fotos` filtra pela sala e `/fotos/[id]` mostra o álbum com upload e miniaturas responsivas.
+
 ### Layout
 
 ```
@@ -88,8 +92,7 @@ Mobile: sidebar colapsa em bottom navigation.
 | Padrão | Quando |
 |--------|--------|
 | Server Component + fetch | Listagem inicial (SEO, performance) |
-| React Query `useInfiniteQuery` | Feed infinito (posts) |
-| React Query `useMutation` | Criar/editar/deletar |
+| Estado React + `fetch` | Feed, formulários e mutations do MVP |
 | Optimistic update | Curtir post (futuro) |
 
 ```typescript
@@ -104,7 +107,7 @@ const { data, fetchNextPage } = useInfiniteQuery({
 
 | Tipo | Solução |
 |------|---------|
-| Server state (API) | React Query |
+| Server state (API) | `fetch` em componentes client com estados de carregamento e erro |
 | Auth session | Auth.js `useSession()` |
 | UI local (modal, form) | `useState` / `useReducer` |
 | Escopo atual (global/sala) | URL params + context |

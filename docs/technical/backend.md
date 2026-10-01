@@ -29,6 +29,11 @@ HTTP Request
 - Provider: e-mail institucional (domínio `@institutojef.org.br` ou lista configurável)
 - Sessão via cookie HTTP-only
 - `getServerSession()` em Route Handlers e Server Components
+- Login por credenciais consulta uma conta existente; não há cadastro aberto.
+- A senha é armazenada como hash `scrypt` com salt individual. O papel usado para autorização é lido do banco, não inferido do e-mail ou confiado ao formulário.
+- O seed cria contas de demonstração apenas fora de produção. Cada instalação define `DEMO_USERS_PASSWORD` e `NEXTAUTH_SECRET` no ambiente local.
+- Em produção, contas e papéis devem ser provisionados pelo processo administrativo da escola; o app não oferece redefinição de senha no MVP.
+- Operadores provisionam ou redefinem uma conta com `npm run db:provision -- <email> <nome> <student|teacher|admin> [slug-da-sala]`, fornecendo `ACCOUNT_INITIAL_PASSWORD` por um gerenciador de segredos. O seed local não deve ser usado em produção.
 
 ### Papéis globais
 
@@ -54,6 +59,8 @@ requireAuth()           // 401 se não autenticado
 requireRole('teacher')  // 403 se papel insuficiente
 requireClassroomMember(classroomId)  // 403 se não é membro
 ```
+
+O middleware de páginas redireciona visitantes para `/login`. As rotas `/api/*` não são redirecionadas pelo middleware: cada Route Handler deve validar a sessão e responder com JSON `401`/`403` conforme o contrato da API.
 
 ## Padrões de Service
 
@@ -93,12 +100,13 @@ Fluxo presigned URL:
 1. Cliente solicita URL de upload (`POST /api/v1/photos/upload-url`)
 2. Backend gera presigned URL do S3/MinIO
 3. Cliente faz upload direto ao storage
-4. Cliente confirma (`POST /api/v1/photos`) com `storage_key`
+4. Cliente confirma (`POST /api/v1/albums/:id/photos`) com chave, tipo e tamanho; o backend confere metadados e assinatura binária antes de registrar.
 
 **Limites MVP:**
 - Tamanho máximo: 10 MB por foto
 - Tipos: `image/jpeg`, `image/png`, `image/webp`
 - Quota: 50 fotos por álbum
+- URL de upload e URLs de leitura expiram em cinco minutos; o bucket permanece privado
 
 ## Estrutura de pastas (apps/web)
 

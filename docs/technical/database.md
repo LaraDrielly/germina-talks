@@ -11,6 +11,8 @@ Modelo de dados estável da plataforma. Alterações por feature são propostas 
 - **Nomes:** snake_case para tabelas e colunas
 - **Migrations:** Prisma Migrate, uma por change quando possível
 
+Datas são persistidas em `timestamptz` e tratadas em UTC. A migration `20261001_auth_and_bulletin_retention` converte valores antigos de `timestamp without time zone` assumindo que foram gravados em UTC.
+
 ## Diagrama ER (conceitual)
 
 ```
@@ -57,6 +59,7 @@ CREATE TYPE member_role AS ENUM ('student', 'teacher');
 | email | VARCHAR UNIQUE | E-mail institucional |
 | name | VARCHAR | Nome de exibição |
 | role | user_role | Papel global |
+| password_hash | TEXT NULL | Hash `scrypt` da senha; NULL para conta ainda sem credencial local |
 | avatar_url | VARCHAR NULL | URL da foto de perfil |
 | created_at | timestamptz | |
 | updated_at | timestamptz | |
@@ -94,12 +97,11 @@ CREATE TYPE member_role AS ENUM ('student', 'teacher');
 | scope_type | scope_type | global ou classroom |
 | classroom_id | UUID FK NULL | NULL se global |
 | created_at | timestamptz | |
-| updated_at | timestamptz | |
 | deleted_at | timestamptz NULL | Soft delete |
 
 **Índices:**
-- `(classroom_id, created_at DESC)` — feed por sala
-- `(scope_type, created_at DESC)` — feed global
+- `(scope_type, classroom_id, created_at, id)` — paginação cronológica por escopo
+- `(author_id, created_at)` — publicações do autor
 
 ### bulletin_items
 
@@ -115,12 +117,12 @@ CREATE TYPE member_role AS ENUM ('student', 'teacher');
 | expires_at | timestamptz NULL | Expiração opcional |
 | created_at | timestamptz | |
 | updated_at | timestamptz | |
-| deleted_at | timestamptz NULL | |
+| deleted_at | timestamptz NULL | Soft delete |
 
 **Índices:**
 - `(scope_type, classroom_id, is_pinned DESC, created_at DESC)`
 
-### albums
+### photo_albums
 
 | Coluna | Tipo | Notas |
 |--------|------|-------|
@@ -129,24 +131,26 @@ CREATE TYPE member_role AS ENUM ('student', 'teacher');
 | description | TEXT NULL | |
 | scope_type | scope_type | |
 | classroom_id | UUID FK NULL | |
-| created_by | UUID FK → users | |
+| creator_id | UUID FK → users | |
 | created_at | timestamptz | |
-| updated_at | timestamptz | |
+| deleted_at | timestamptz NULL | Soft delete |
 
 ### photos
 
 | Coluna | Tipo | Notas |
 |--------|------|-------|
 | id | UUID PK | |
-| album_id | UUID FK → albums | |
-| storage_key | VARCHAR | Chave no S3/MinIO |
-| uploaded_by | UUID FK → users | |
+| album_id | UUID FK → photo_albums | |
+| object_key | TEXT UNIQUE | Chave privada no storage S3 compatível |
+| uploader_id | UUID FK → users | |
+| content_type | VARCHAR(32) | Tipo validado da imagem |
+| size_bytes | INT | Tamanho em bytes, máximo 10 MB |
 | caption | VARCHAR(200) NULL | |
 | created_at | timestamptz | |
 
 ## Escopo transversal
 
-Toda entidade de conteúdo (`posts`, `bulletin_items`, `albums`) possui:
+Toda entidade de conteúdo (`posts`, `bulletin_items`, `photo_albums`) possui:
 
 - `scope_type`: `'global'` ou `'classroom'`
 - `classroom_id`: `NULL` quando global, FK quando por sala
