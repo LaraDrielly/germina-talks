@@ -1,22 +1,6 @@
-# Mural de recados
+# Delta: Mural de recados
 
-**Prioridade:** P1 | **Escopo:** global + sala
-
-## Purpose
-
-O mural reúne avisos institucionais e recados das turmas em um espaço organizado, com destaque para informações importantes e prazo de validade quando necessário.
-
-## Personas
-
-- **Professor** — publica e fixa recados nas salas em que leciona.
-- **Coordenação** — publica comunicados globais ou por sala e pode fixá-los.
-- **Aluno** — lê recados globais e das salas de que participa e pode publicar recados não fixados nessas salas.
-
-## Scope
-
-global + classroom
-
-## Requirements
+## MODIFIED Requirements
 
 ### Requirement: Persistência e leitura por escopo
 O sistema SHALL persistir cada recado com título de até 120 caracteres, corpo, autor, escopo global ou de sala, estado de fixação e data de expiração opcional. Recados de sala SHALL estar acessíveis apenas a membros daquela sala. Recados globais SHALL estar acessíveis a qualquer usuário autenticado.
@@ -102,8 +86,3 @@ O sistema SHALL permitir que um membro consulte o mural de uma sala específica 
 - **GIVEN** um usuário sem vínculo com uma sala
 - **WHEN** tenta abrir o mural específico da sala
 - **THEN** não recebe acesso aos recados daquela sala
-
-## Design references
-
-- [docs/design-system.md#BulletinPin](../../../../docs/design-system.md)
-- [docs/design-system.md#EmptyState](../../../../docs/design-system.md)

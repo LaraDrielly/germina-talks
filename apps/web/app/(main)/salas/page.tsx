@@ -31,16 +31,34 @@ export default async function SalasPage() {
             const track = trackStyles[classroom.schoolTrack];
 
             return (
-              <Link
+              <div
                 key={classroom.id}
-                href={`/salas/${classroom.id}/feed`}
-                className="rounded-2xl border border-slate-200 bg-slate-50 p-5 transition hover:border-accent hover:bg-white focus:outline-none focus:ring-2 focus:ring-accent/40"
+                className="rounded-2xl border border-slate-200 bg-slate-50 p-5 transition hover:border-accent hover:bg-white"
               >
                 <div className={`mb-4 h-2 w-16 rounded-full ${track.color}`} />
                 <h3 className="font-semibold text-slate-800">{classroom.name}</h3>
                 <p className="mt-2 text-sm text-slate-500">{track.label}</p>
-                <p className="mt-3 text-sm font-medium text-primary">Ver feed da sala</p>
-              </Link>
+                <div className="mt-4 flex flex-wrap gap-3 text-sm font-medium text-primary">
+                  <Link
+                    href={`/salas/${classroom.id}/feed`}
+                    className="hover:underline focus:outline-none focus:ring-2 focus:ring-accent/40"
+                  >
+                    Feed
+                  </Link>
+                  <Link
+                    href={`/salas/${classroom.id}/mural`}
+                    className="hover:underline focus:outline-none focus:ring-2 focus:ring-accent/40"
+                  >
+                    Mural
+                  </Link>
+                  <Link
+                    href={`/salas/${classroom.id}/fotos`}
+                    className="hover:underline focus:outline-none focus:ring-2 focus:ring-accent/40"
+                  >
+                    Fotos
+                  </Link>
+                </div>
+              </div>
             );
           })}
         </div>

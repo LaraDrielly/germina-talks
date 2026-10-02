@@ -73,7 +73,7 @@ class MockRepository {
 
   // Classroom
   classroom = {
-    findMany: async (args?: { where?: any; include?: any }) => {
+    findMany: async (args?: { where?: any; include?: any; orderBy?: any }) => {
       let result = [...this.classrooms];
 
       if (args?.where?.memberships?.some?.userId) {
@@ -82,6 +82,21 @@ class MockRepository {
           .filter((m) => m.userId === targetUserId)
           .map((m) => m.classroomId);
         result = result.filter((c) => userClassroomIds.includes(c.id));
+      }
+
+      const orderBy = Array.isArray(args?.orderBy) ? args.orderBy : args?.orderBy ? [args.orderBy] : [];
+      if (orderBy.length > 0) {
+        result.sort((a, b) => {
+          for (const order of orderBy) {
+            if (order.schoolTrack === 'asc' && a.schoolTrack !== b.schoolTrack) {
+              return a.schoolTrack.localeCompare(b.schoolTrack);
+            }
+            if (order.name === 'asc' && a.name !== b.name) {
+              return a.name.localeCompare(b.name);
+            }
+          }
+          return 0;
+        });
       }
 
       if (args?.include) {
@@ -339,27 +354,45 @@ class MockRepository {
 
   // BulletinItem
   bulletinItem = {
-    findMany: async (args?: { where?: any; orderBy?: any }) => {
-      let result = [...this.bulletinItems];
+    findMany: async (args?: { where?: any; orderBy?: any; include?: any }) => {
+      let result = this.bulletinItems.filter((item) => this.matchesBulletinWhere(item, args?.where));
 
-      if (args?.where) {
-        if (args.where.scopeType) {
-          result = result.filter((b) => b.scopeType === args.where.scopeType);
+      const orderBy = Array.isArray(args?.orderBy) ? args.orderBy : args?.orderBy ? [args.orderBy] : [];
+      result.sort((a, b) => {
+        for (const order of orderBy) {
+          if (order.isPinned === 'desc') {
+            const diff = Number(b.isPinned) - Number(a.isPinned);
+            if (diff !== 0) return diff;
+          }
+          if (order.createdAt === 'desc') {
+            const diff = b.createdAt.getTime() - a.createdAt.getTime();
+            if (diff !== 0) return diff;
+          }
+          if (order.id === 'desc') {
+            if (a.id < b.id) return 1;
+            if (a.id > b.id) return -1;
+          }
         }
-        if (args.where.classroomId !== undefined) {
-          result = result.filter((b) => b.classroomId === args.where.classroomId);
-        }
-      }
+        return b.createdAt.getTime() - a.createdAt.getTime();
+      });
 
-      if (args?.orderBy?.createdAt === 'desc') {
-        result.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+      if (args?.include) {
+        return result.map((item) => this.enrichBulletin(item, args.include));
       }
-
       return result;
     },
-    create: async (args: { data: Omit<MockBulletinItem, 'createdAt' | 'updatedAt' | 'id' | 'deletedAt'> & { id?: string } }) => {
+    findUnique: async (args: { where: { id: string }; include?: any }) => {
+      const item = this.bulletinItems.find((b) => b.id === args.where.id) || null;
+      if (!item) return null;
+      if (args.include) return this.enrichBulletin(item, args.include);
+      return item;
+    },
+    create: async (args: {
+      data: Omit<MockBulletinItem, 'createdAt' | 'updatedAt' | 'id' | 'deletedAt'> & { id?: string };
+      include?: any;
+    }) => {
       const newItem: MockBulletinItem = {
-        id: args.data.id || `bulletin-${Date.now()}`,
+        id: args.data.id || `f2020002-0002-4000-8000-${String(Date.now()).padStart(12, '0').slice(-12)}`,
         authorId: args.data.authorId,
         title: args.data.title,
         body: args.data.body,
@@ -372,9 +405,83 @@ class MockRepository {
         deletedAt: null,
       };
       this.bulletinItems.push(newItem);
+      if (args.include) return this.enrichBulletin(newItem, args.include);
       return newItem;
     },
+    update: async (args: { where: { id: string }; data: Partial<MockBulletinItem>; include?: any }) => {
+      const index = this.bulletinItems.findIndex((b) => b.id === args.where.id);
+      if (index < 0) throw new Error('Bulletin not found');
+      this.bulletinItems[index] = {
+        ...this.bulletinItems[index],
+        ...args.data,
+        updatedAt: new Date(),
+      };
+      if (args.include) return this.enrichBulletin(this.bulletinItems[index], args.include);
+      return this.bulletinItems[index];
+    },
   };
+
+  private matchesBulletinWhere(item: MockBulletinItem, where?: any): boolean {
+    if (!where) return true;
+
+    if (Array.isArray(where.AND)) {
+      return where.AND.every((clause: any) => this.matchesBulletinWhere(item, clause));
+    }
+
+    if (Array.isArray(where.OR)) {
+      return where.OR.some((clause: any) => this.matchesBulletinWhere(item, clause));
+    }
+
+    if (where.scopeType && item.scopeType !== where.scopeType) return false;
+
+    if (where.classroomId !== undefined) {
+      if (typeof where.classroomId === 'object' && where.classroomId !== null && 'in' in where.classroomId) {
+        if (!where.classroomId.in.includes(item.classroomId)) return false;
+      } else if (item.classroomId !== where.classroomId) {
+        return false;
+      }
+    }
+
+    if (where.deletedAt === null && item.deletedAt !== null) return false;
+
+    if (where.expiresAt === null && item.expiresAt !== null) return false;
+    if (where.expiresAt?.gt && (!(item.expiresAt instanceof Date) || !(item.expiresAt > where.expiresAt.gt))) {
+      return false;
+    }
+
+    return true;
+  }
+
+  private enrichBulletin(item: MockBulletinItem, include: any) {
+    const enriched: any = { ...item };
+    if (include.author) {
+      const author = this.users.find((u) => u.id === item.authorId);
+      if (author && include.author.select) {
+        enriched.author = {
+          ...(include.author.select.id ? { id: author.id } : {}),
+          ...(include.author.select.name ? { name: author.name } : {}),
+          ...(include.author.select.role ? { role: author.role } : {}),
+        };
+      } else {
+        enriched.author = author || null;
+      }
+    }
+    if (include.classroom) {
+      const classroom = item.classroomId
+        ? this.classrooms.find((c) => c.id === item.classroomId) || null
+        : null;
+      if (classroom && include.classroom.select) {
+        enriched.classroom = {
+          ...(include.classroom.select.id ? { id: classroom.id } : {}),
+          ...(include.classroom.select.name ? { name: classroom.name } : {}),
+          ...(include.classroom.select.schoolTrack ? { schoolTrack: classroom.schoolTrack } : {}),
+        };
+      } else {
+        enriched.classroom = classroom;
+      }
+    }
+    return enriched;
+  }
 
   // Album
   album = {

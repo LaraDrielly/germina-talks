@@ -14,3 +14,9 @@ export type {
   ListAlbumsQuery,
   ModerationActionInput,
 } from './albums';
+export {
+  createBulletinSchema,
+  listBulletinsQuerySchema,
+  bulletinScopeSchema,
+} from './bulletin';
+export type { CreateBulletinInput, ListBulletinsQuery } from './bulletin';

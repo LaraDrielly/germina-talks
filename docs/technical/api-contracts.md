@@ -133,6 +133,19 @@ POST /api/v1/bulletin
 }
 ```
 
+**Contrato canônico do mural** (global e sala):
+
+```
+GET /api/v1/bulletin?scopeType=global|classroom&classroomId=<id>
+POST /api/v1/bulletin
+POST /api/v1/bulletin/:id/pin
+```
+
+- Sem filtros: recados globais + salas acessíveis ao usuário (coordenação vê todos)
+- Com `classroomId`: apenas a sala; exige membership (coordenação acessa qualquer sala)
+- Recados expirados ou com `deletedAt` não entram na listagem
+- Ordenação: `isPinned` desc, depois `createdAt` desc
+
 ### Criar álbum
 
 ```json
