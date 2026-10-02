@@ -1,8 +1,8 @@
 import { getServerSession } from 'next-auth';
-import { authOptions } from '../../../../../auth';
-import { postApiErrorResponse } from '../../../../../lib/http/post-api';
-import { albumsService } from '../../../../../lib/services/albums';
 import { moderationActionSchema } from '@germina-talks/shared';
+import { authOptions } from '@/auth';
+import { postApiErrorResponse } from '@/lib/http/post-api';
+import { albumsService } from '@/lib/services/albums';
 
 type RouteContext = { params: Promise<{ id: string }> };
 
