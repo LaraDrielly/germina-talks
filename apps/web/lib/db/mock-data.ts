@@ -141,7 +141,7 @@ export const initialMockPosts: MockPost[] = [
   {
     id: 'post-1',
     authorId: 'user-student-1',
-    content: 'Olá comunidade Germina Talks! Bem-vindos ao novo ano letivo.',
+    content: 'Olá comunidade GerminaTalks! Bem-vindos ao novo ano letivo.',
     scopeType: ScopeType.global,
     classroomId: null,
     createdAt: new Date(Date.now() - 3600000),

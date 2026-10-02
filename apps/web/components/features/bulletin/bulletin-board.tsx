@@ -4,6 +4,8 @@ import { FormEvent, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import type { SchoolTrack, UserRole } from '@prisma/client';
 import type { BulletinClassroomOption, BulletinDto } from '@/lib/services/bulletin';
+import { Modal } from '@/components/ui/modal';
+import { ConfirmModal } from '@/components/ui/confirm-modal';
 
 type Props = {
   items: BulletinDto[];
@@ -41,8 +43,11 @@ export function BulletinBoard({ items, classrooms, role, loadError = false, targ
   const [isPinned, setIsPinned] = useState(false);
   const [message, setMessage] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [pinningId, setPinningId] = useState<string | null>(null);
-  const canPublish = role === 'admin' || classrooms.length > 0;
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
+  const canPublish = role !== 'student' && (role === 'admin' || classrooms.length > 0);
   const canPinInSelectedClassroom =
     role === 'admin' ||
     (role === 'teacher' &&
@@ -78,6 +83,7 @@ export function BulletinBoard({ items, classrooms, role, loadError = false, targ
       setExpiresAt('');
       setIsPinned(false);
       setMessage('Recado publicado.');
+      setIsModalOpen(false);
       router.refresh();
     } catch {
       setMessage('Não foi possível publicar o recado agora. Verifique sua conexão e tente novamente.');
@@ -105,23 +111,54 @@ export function BulletinBoard({ items, classrooms, role, loadError = false, targ
     }
   }
 
+  async function deleteBulletin(id: string) {
+    setMessage('');
+    setDeletingId(id);
+    setConfirmDeleteId(null);
+    try {
+      const response = await fetch(`/api/v1/bulletin/${id}`, { method: 'DELETE' });
+      const result = await response.json();
+      if (!response.ok) {
+        setMessage(result.error?.message ?? 'Não foi possível excluir o recado.');
+        return;
+      }
+      setMessage('Recado excluído.');
+      router.refresh();
+    } catch {
+      setMessage('Não foi possível excluir o recado agora. Verifique sua conexão e tente novamente.');
+    } finally {
+      setDeletingId(null);
+    }
+  }
+
   return (
     <div>
-      <div className="mb-6">
-        <p className="text-xs uppercase tracking-[0.2em] text-accent">Informações da comunidade</p>
-        <h2 className="mt-1 text-3xl font-semibold text-primary">
-          {targetClassroom ? `Mural · ${targetClassroom.name}` : 'Mural'}
-        </h2>
-        <p className="mt-2 text-sm text-slate-600">
-          {targetClassroom
-            ? 'Avisos importantes desta sala.'
-            : 'Avisos importantes da escola e das suas salas.'}
-        </p>
+      <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <p className="text-xs uppercase tracking-[0.2em] text-accent">Informações da comunidade</p>
+          <h2 className="mt-1 text-3xl font-semibold text-primary">
+            {targetClassroom ? `Mural · ${targetClassroom.name}` : 'Mural'}
+          </h2>
+          <p className="mt-2 text-sm text-slate-600">
+            {targetClassroom
+              ? 'Avisos importantes desta sala.'
+              : 'Avisos importantes da escola e das suas salas.'}
+          </p>
+        </div>
+        {canPublish && (
+          <button
+            type="button"
+            onClick={() => setIsModalOpen(true)}
+            className="rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-primary/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+          >
+            Adicionar recado
+          </button>
+        )}
       </div>
 
-      {canPublish ? (
-        <form onSubmit={createBulletin} className="mb-8 rounded-2xl border border-slate-200 bg-surface p-5">
-          <h3 className="mb-4 text-lg font-semibold text-primary">Compartilhe um recado</h3>
+      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Compartilhe um recado">
+        {canPublish ? (
+          <form onSubmit={createBulletin}>
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="sm:col-span-2">
               <label htmlFor="bulletin-title" className="mb-1.5 block text-sm font-medium text-ink">
@@ -239,12 +276,25 @@ export function BulletinBoard({ items, classrooms, role, loadError = false, targ
             </button>
           </div>
         </form>
-      ) : (
-        <p className="mb-8 rounded-xl border border-slate-200 bg-surface p-4 text-sm text-slate-600">
-          Você ainda não participa de uma sala. Quando estiver vinculado a uma turma, poderá publicar recados por
-          lá.
-        </p>
-      )}
+        ) : (
+          <p className="rounded-xl border border-slate-200 bg-surface p-4 text-sm text-slate-600">
+            Você ainda não participa de uma sala. Quando estiver vinculado a uma turma, poderá publicar recados por
+            lá.
+          </p>
+        )}
+      </Modal>
+
+      <ConfirmModal
+        isOpen={confirmDeleteId !== null}
+        onClose={() => setConfirmDeleteId(null)}
+        onConfirm={() => {
+          if (confirmDeleteId) deleteBulletin(confirmDeleteId);
+        }}
+        title="Excluir recado"
+        description="Tem certeza que deseja excluir este recado? Ele será removido do mural de todos os membros."
+        variant="danger"
+        confirmText="Excluir"
+      />
 
       <p role="status" aria-live="polite" className="mb-4 min-h-5 text-sm text-slate-600">
         {message}
@@ -283,20 +333,32 @@ export function BulletinBoard({ items, classrooms, role, loadError = false, targ
                     {item.author.name} · {roleLabels[item.author.role]} · {formatDate(item.createdAt)}
                   </p>
                 </div>
-                {item.canPin ? (
-                  item.isPinned ? (
-                    <span className="text-xs font-medium text-slate-500">No topo do mural</span>
-                  ) : (
+                <div className="flex gap-2 items-center">
+                  {role === 'admin' && (
                     <button
                       type="button"
-                      onClick={() => pinBulletin(item.id)}
-                      disabled={pinningId !== null}
-                      className="rounded-lg border border-primary px-3 py-2 text-sm font-medium text-primary transition hover:bg-primary/5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+                      onClick={() => setConfirmDeleteId(item.id)}
+                      disabled={deletingId === item.id}
+                      className="rounded-lg border border-red-500 px-3 py-2 text-sm font-medium text-red-500 transition hover:bg-red-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-500"
                     >
-                      {pinningId === item.id ? 'Fixando…' : 'Fixar recado'}
+                      {deletingId === item.id ? 'Excluindo…' : 'Excluir'}
                     </button>
-                  )
-                ) : null}
+                  )}
+                  {item.canPin ? (
+                    item.isPinned ? (
+                      <span className="text-xs font-medium text-slate-500">No topo do mural</span>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => pinBulletin(item.id)}
+                        disabled={pinningId !== null}
+                        className="rounded-lg border border-primary px-3 py-2 text-sm font-medium text-primary transition hover:bg-primary/5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+                      >
+                        {pinningId === item.id ? 'Fixando…' : 'Fixar recado'}
+                      </button>
+                    )
+                  ) : null}
+                </div>
               </div>
               <p className="whitespace-pre-wrap text-sm leading-6 text-ink">{item.body}</p>
               {item.expiresAt ? (

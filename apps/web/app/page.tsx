@@ -5,7 +5,7 @@ export default function HomePage() {
         <p className="mb-4 text-sm font-medium uppercase tracking-wider text-accent">
           Instituto J&amp;F
         </p>
-        <h1 className="text-4xl font-semibold text-primary">Germina Talks</h1>
+        <h1 className="text-4xl font-semibold text-primary">GerminaTalks</h1>
         <p className="mt-4 max-w-2xl text-lg leading-8 text-ink">
           O ambiente de desenvolvimento está pronto para receber a comunidade escolar.
         </p>

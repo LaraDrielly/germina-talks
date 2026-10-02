@@ -44,11 +44,15 @@ O sistema MUST associar a cada sala nome, slug, frente de ensino (`business`, `t
 - **THEN** a interface usa a cor da frente correspondente
 
 ### Requirement: Membros vinculados às salas
-O sistema MUST vincular usuários às salas como membros e MUST restringir a listagem: alunos e professores veem apenas salas das quais são membros; coordenação vê todas.
+O sistema MUST vincular usuários às salas como membros e MUST restringir a listagem: alunos e professores veem apenas salas das quais são membros; coordenação vê todas as salas independentemente de associação explícita.
 
 #### Scenario: Listagem de salas
 - **WHEN** um usuário autenticado acessa a listagem de salas
 - **THEN** vê apenas salas das quais é membro (aluno/professor) ou todas (coordenação)
+
+#### Scenario: Coordenação acessa qualquer sala
+- **WHEN** a coordenação tenta acessar os detalhes ou rotas de uma sala
+- **THEN** o sistema concede o acesso mesmo que o usuário não seja explicitamente membro da sala
 
 #### Scenario: Aluno vê suas salas na sidebar
 - **WHEN** um aluno membro de duas salas acessa a plataforma
@@ -82,6 +86,13 @@ O sistema SHOULD usar slug amigável para URL e SHOULD agrupar salas por frente 
 #### Scenario: Slug amigável na listagem
 - **WHEN** uma sala é criada com nome descritivo
 - **THEN** o slug permanece adequado para uso em URL
+
+### Requirement: Ocultar Feed para Admin
+A interface de listagem de salas MUST omitir o link de navegação para o Feed da sala quando o usuário autenticado possuir o papel de admin (coordenação).
+
+#### Scenario: Admin acessando a listagem de salas
+- **WHEN** um usuário com papel de `admin` visualiza a listagem em `/salas`
+- **THEN** o card da sala não exibe o link para "Feed"
 
 ## Scope
 

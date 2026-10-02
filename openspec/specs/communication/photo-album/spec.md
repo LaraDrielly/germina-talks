@@ -66,7 +66,7 @@ Permite criar álbuns de fotos para registrar eventos e momentos da vida escolar
 ## Requirements
 
 ### Requirement: Álbuns listados e criados via API versionada com escopo
-O sistema MUST listar e criar álbuns através de `GET`/`POST /api/v1/albums` com escopo global ou de sala. Para escopo de sala, a listagem e a criação MUST exigir que o usuário autenticado seja membro da sala (ou coordenação). O feed de fotos na interface MUST consumir esse contrato.
+O sistema MUST listar e criar álbuns através de `GET`/`POST /api/v1/albums` com escopo global ou de sala. Para escopo de sala, a listagem MUST exigir que o usuário autenticado seja membro da sala (ou coordenação). A criação de álbuns MUST ser restrita exclusivamente a professores e coordenação. Alunos NÃO podem criar álbuns. O feed de fotos na interface MUST consumir esse contrato.
 
 #### Scenario: Membro lista álbuns da sala
 - **WHEN** um membro autenticado solicita `GET /api/v1/albums?classroomId=<id-da-sala>`
@@ -79,6 +79,14 @@ O sistema MUST listar e criar álbuns através de `GET`/`POST /api/v1/albums` co
 #### Scenario: UI de fotos da sala usa o contrato de álbuns
 - **WHEN** um membro abre `/salas/<id>/fotos`
 - **THEN** a listagem carrega álbuns via `GET /api/v1/albums` com `classroomId` dessa sala
+
+#### Scenario: Aluno tenta criar álbum
+- **WHEN** um aluno solicita a criação de um álbum
+- **THEN** o sistema rejeita com erro de permissão
+
+#### Scenario: Professor ou Coordenação cria álbum
+- **WHEN** um professor ou membro da coordenação cria um álbum válido
+- **THEN** o álbum é criado e imediatamente aprovado
 
 ### Requirement: Upload de foto no álbum autenticado
 O sistema MUST permitir que um membro do escopo envie fotos (JPEG, PNG ou WebP até 10 MB) para um álbum existente via `POST /api/v1/albums/:id/photos`. O sistema MUST rejeitar arquivos acima do limite. A identidade do autor MUST vir da sessão autenticada (não de campos enviados pelo cliente).
@@ -95,20 +103,35 @@ O sistema MUST permitir que um membro do escopo envie fotos (JPEG, PNG ou WebP a
 - **WHEN** um cliente envia `createdById` ou `userRole` no body tentando se passar por outro usuário
 - **THEN** o sistema ignora esses campos e usa apenas a sessão autenticada
 
-### Requirement: Moderação de álbuns e fotos por papel
-O sistema MUST marcar conteúdo criado por aluno como pendente de moderação até aprovação. Conteúdo criado por professor ou coordenação MUST ficar aprovado automaticamente. Apenas coordenação MUST poder aprovar ou rejeitar itens pendentes. Listagens públicas de fotos/álbuns MUST exibir apenas conteúdo aprovado para alunos; coordenação MAY ver pendentes na área de moderação.
+### Requirement: Exibição da legenda
+A interface de visualização do álbum SHALL exibir a legenda (caption) descritiva de cada foto imediatamente abaixo dela.
 
-#### Scenario: Aluno cria álbum pendente
-- **WHEN** um aluno cria um álbum válido
-- **THEN** o álbum fica com status pendente e não aparece na listagem pública até aprovação
+#### Scenario: Foto com legenda no álbum
+- **WHEN** o usuário visualiza uma foto na grade
+- **THEN** a sua descrição é renderizada debaixo da imagem
+
+### Requirement: Moderação de álbuns e fotos por papel
+O sistema MUST marcar fotos (conteúdo) enviadas por alunos como pendentes de moderação até aprovação. Conteúdo criado por professor ou coordenação MUST ficar aprovado automaticamente. Álbuns, por serem criados apenas por professores/coordenação, são sempre auto-aprovados. Professores (membros da sala) e a Coordenação MUST poder aprovar ou rejeitar itens pendentes na interface. Listagens públicas de fotos/álbuns MUST exibir apenas conteúdo aprovado para alunos; coordenação e professores MAY ver pendentes na área de moderação. A interface SHALL solicitar confirmação explícita através de um modal antes de efetivar as ações de aprovar ou rejeitar itens.
+
+#### Scenario: Aluno envia foto pendente
+- **WHEN** um aluno envia uma foto para um álbum existente
+- **THEN** a foto fica com status pendente e não aparece na listagem pública
 
 #### Scenario: Professor cria álbum aprovado
 - **WHEN** um professor cria um álbum válido
 - **THEN** o álbum fica aprovado e aparece imediatamente na listagem do escopo
 
-#### Scenario: Coordenação aprova foto pendente
-- **WHEN** a coordenação aprova uma foto pendente
+#### Scenario: Coordenação aprova foto pendente via interface
+- **WHEN** a coordenação clica para aprovar uma foto pendente e confirma a ação no modal
 - **THEN** a foto passa a aparecer na grade do álbum para os membros do escopo
+
+#### Scenario: Professor aprova foto pendente da sala
+- **WHEN** um professor aprova uma foto pendente de uma sala da qual ele é membro após confirmar no modal
+- **THEN** a foto passa a aparecer na grade do álbum para os membros da sala
+
+#### Scenario: Coordenação rejeita foto pendente
+- **WHEN** a coordenação clica para rejeitar uma foto pendente e confirma a ação no modal
+- **THEN** a foto é descartada e removida da lista de pendências
 
 ## Constraints
 

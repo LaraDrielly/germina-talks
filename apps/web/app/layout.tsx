@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'Germina Talks',
+  title: 'GerminaTalks',
   description: 'Comunidade escolar do Instituto J&F',
 };
 

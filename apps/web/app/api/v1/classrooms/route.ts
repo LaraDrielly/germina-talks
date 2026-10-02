@@ -9,15 +9,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: 'Não autorizado' }, { status: 401 });
   }
 
-  const { searchParams } = new URL(req.url);
-  const scope = searchParams.get('scope');
-
-  if (scope === 'all' && session.user.role === 'admin') {
-    const classrooms = await getAllClassrooms();
-    return NextResponse.json(classrooms);
-  }
-
-  const classrooms = await getClassroomsForUser(session.user.id);
+  const classrooms = await getClassroomsForUser(session.user.id, session.user.role);
   return NextResponse.json(classrooms);
 }
 

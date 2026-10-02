@@ -5,7 +5,16 @@ export type ClassroomWithMembership = Classroom & {
   memberships: Array<{ userId: string; classroomId: string; role: MemberRole; joinedAt: Date }>;
 };
 
-export async function getClassroomsForUser(userId: string): Promise<ClassroomWithMembership[]> {
+export async function getClassroomsForUser(userId: string, role?: string): Promise<ClassroomWithMembership[]> {
+  if (role === 'admin') {
+    const all = await prisma.classroom.findMany();
+    // Simulamos a associação para manter compatibilidade de tipagem onde memberships for iterado
+    return all.map((c) => ({
+      ...c,
+      memberships: [{ userId, classroomId: c.id, role: 'teacher' as MemberRole, joinedAt: new Date() }],
+    })) as ClassroomWithMembership[];
+  }
+
   return (await prisma.classroom.findMany({
     where: {
       memberships: {

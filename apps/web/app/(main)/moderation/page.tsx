@@ -1,12 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-
-type PendingAlbum = {
-  id: string;
-  title: string;
-  creator?: { name: string } | null;
-};
+import { ConfirmModal } from '@/components/ui/confirm-modal';
 
 type PendingPhoto = {
   id: string;
@@ -15,10 +10,10 @@ type PendingPhoto = {
 };
 
 export default function ModerationPage() {
-  const [albums, setAlbums] = useState<PendingAlbum[]>([]);
   const [photos, setPhotos] = useState<PendingPhoto[]>([]);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
+  const [actionPending, setActionPending] = useState<{ id: string, action: 'approved' | 'rejected' } | null>(null);
 
   const load = () => {
     setLoading(true);
@@ -31,7 +26,6 @@ export default function ModerationPage() {
         return response.json();
       })
       .then((payload) => {
-        setAlbums(payload.data?.albums ?? []);
         setPhotos(payload.data?.photos ?? []);
         setError('');
       })
@@ -55,9 +49,10 @@ export default function ModerationPage() {
       const payload = await response.json().catch(() => null);
       setError(payload?.error?.message || 'Falha ao moderar.');
     }
+    setActionPending(null);
   };
 
-  if (error && !loading && albums.length === 0 && photos.length === 0) {
+  if (error && !loading && photos.length === 0) {
     return (
       <p className="rounded-xl border border-[#DC4405]/20 bg-[#DC4405]/5 px-3 py-2 text-sm text-[#DC4405]">
         {error}
@@ -70,7 +65,7 @@ export default function ModerationPage() {
       <header>
         <p className="text-[10px] uppercase tracking-[0.2em] text-accent">Coordenação</p>
         <h2 className="mt-1 text-2xl font-semibold text-primary sm:text-3xl">Moderação</h2>
-        <p className="mt-1 text-sm text-slate-500">Fila de álbuns e fotos pendentes</p>
+        <p className="mt-1 text-sm text-slate-500">Fila de fotos pendentes</p>
       </header>
 
       {error ? (
@@ -78,40 +73,6 @@ export default function ModerationPage() {
           {error}
         </p>
       ) : null}
-
-      <div className="space-y-4">
-        <h3 className="text-lg font-semibold text-primary">Álbuns pendentes ({albums.length})</h3>
-        {albums.length === 0 ? (
-          <p className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-4 py-6 text-sm text-slate-500">
-            Nenhum álbum pendente.
-          </p>
-        ) : (
-          <div className="grid gap-4 sm:grid-cols-2">
-            {albums.map((album) => (
-              <div key={album.id} className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-                <p className="font-semibold text-slate-800">{album.title}</p>
-                <p className="mt-1 text-sm text-slate-500">Por: {album.creator?.name || 'Desconhecido'}</p>
-                <div className="mt-4 flex flex-wrap gap-2">
-                  <button
-                    type="button"
-                    onClick={() => moderate('albums', album.id, 'approved')}
-                    className="rounded-xl bg-[#11C76F] px-3 py-2 text-sm font-semibold text-white"
-                  >
-                    Aprovar
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => moderate('albums', album.id, 'rejected')}
-                    className="rounded-xl bg-[#DC4405] px-3 py-2 text-sm font-semibold text-white"
-                  >
-                    Rejeitar
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
 
       <div className="space-y-4">
         <h3 className="text-lg font-semibold text-primary">Fotos pendentes ({photos.length})</h3>
@@ -130,14 +91,14 @@ export default function ModerationPage() {
                   <div className="flex gap-2">
                     <button
                       type="button"
-                      onClick={() => moderate('photos', photo.id, 'approved')}
+                      onClick={() => setActionPending({ id: photo.id, action: 'approved' })}
                       className="flex-1 rounded-xl bg-[#11C76F] py-2 text-sm font-semibold text-white"
                     >
                       Aprovar
                     </button>
                     <button
                       type="button"
-                      onClick={() => moderate('photos', photo.id, 'rejected')}
+                      onClick={() => setActionPending({ id: photo.id, action: 'rejected' })}
                       className="flex-1 rounded-xl bg-[#DC4405] py-2 text-sm font-semibold text-white"
                     >
                       Rejeitar
@@ -149,6 +110,24 @@ export default function ModerationPage() {
           </div>
         )}
       </div>
+
+      <ConfirmModal
+        isOpen={actionPending !== null}
+        onClose={() => setActionPending(null)}
+        onConfirm={() => {
+          if (actionPending) {
+            moderate('photos', actionPending.id, actionPending.action);
+          }
+        }}
+        title={actionPending?.action === 'approved' ? 'Aprovar foto' : 'Rejeitar foto'}
+        description={
+          actionPending?.action === 'approved'
+            ? 'A foto ficará visível para todos os membros do escopo. Deseja continuar?'
+            : 'A foto será descartada e não poderá ser recuperada. Deseja continuar?'
+        }
+        variant={actionPending?.action === 'approved' ? 'primary' : 'danger'}
+        confirmText={actionPending?.action === 'approved' ? 'Aprovar' : 'Rejeitar'}
+      />
     </section>
   );
 }

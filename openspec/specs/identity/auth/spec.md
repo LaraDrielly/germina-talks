@@ -2,7 +2,7 @@
 
 **Prioridade:** P0 | **Escopo:** global
 
-## Overview
+## Purpose
 
 Permite que membros da comunidade escolar do Instituto J&F façam login na plataforma usando e-mail institucional, garantindo que apenas pessoas autorizadas acessam o Germina Talks.
 
@@ -12,45 +12,58 @@ Permite que membros da comunidade escolar do Instituto J&F façam login na plata
 - **Professor** — faz login para publicar recados e moderar
 - **Coordenação** — faz login para comunicados globais
 
-## Scenarios
-
-### Scenario: Aluno faz login com e-mail institucional
-- **GIVEN** um aluno com e-mail `@institutojef.org.br` cadastrado
-- **WHEN** ele insere e-mail e senha na tela de login
-- **THEN** ele é autenticado e redirecionado para o feed
-
-### Scenario: Usuário com e-mail não autorizado tenta login
-- **GIVEN** um e-mail que não pertence ao domínio permitido
-- **WHEN** ele tenta fazer login
-- **THEN** o sistema exibe mensagem de erro e não autentica
-
-### Scenario: Usuário não autenticado acessa rota protegida
-- **GIVEN** um visitante sem sessão
-- **WHEN** ele tenta acessar `/feed`
-- **THEN** é redirecionado para `/login`
-
-### Scenario: Usuário faz logout
-- **GIVEN** um usuário autenticado
-- **WHEN** ele clica em "Sair"
-- **THEN** a sessão é encerrada e ele volta para `/login`
-
 ## Requirements
 
-### MUST
+### Requirement: Autenticação principal
 - Autenticar via e-mail e senha
 - Restringir cadastro/login a domínios de e-mail configurados
 - Manter sessão via cookie seguro (HTTP-only)
 - Redirecionar rotas protegidas para login quando não autenticado
 - Permitir logout
 
-### SHOULD
+#### Scenario: Aluno faz login com e-mail institucional
+- **GIVEN** um aluno com e-mail `@institutojef.org.br` cadastrado
+- **WHEN** ele insere e-mail e senha na tela de login
+- **THEN** ele é autenticado e redirecionado para o feed
+
+#### Scenario: Usuário com e-mail não autorizado tenta login
+- **GIVEN** um e-mail que não pertence ao domínio permitido
+- **WHEN** ele tenta fazer login
+- **THEN** o sistema exibe mensagem de erro e não autentica
+
+#### Scenario: Usuário não autenticado acessa rota protegida
+- **GIVEN** um visitante sem sessão
+- **WHEN** ele tenta acessar `/feed`
+- **THEN** é redirecionado para `/login`
+
+#### Scenario: Usuário faz logout
+- **GIVEN** um usuário autenticado
+- **WHEN** ele clica em "Sair"
+- **THEN** a sessão é encerrada e ele volta para `/login`
+
+### Requirement: Funcionalidades desejáveis
 - Exibir nome e avatar do usuário no header após login
 - Mensagem de erro amigável em credenciais inválidas
 
-### WON'T
+#### Scenario: Funcionalidades desejáveis implementadas
+- **WHEN** o usuário faz login
+- **THEN** os itens desejáveis são aplicados
+
+### Requirement: Fora do escopo
 - Login social (Google, Facebook) no MVP
 - Autenticação de dois fatores no MVP
 - Cadastro self-service (usuários criados por admin)
+
+#### Scenario: Fora do escopo
+- **WHEN** for escopo futuro
+- **THEN** não implementa no MVP
+
+### Requirement: Ação explícita de Logout no perfil
+O sistema SHALL fornecer um botão ou ação clara na interface do usuário (especificamente no Perfil) para realizar o logout, não exigindo navegação manual por URL.
+
+#### Scenario: Logout via interface do Perfil
+- **WHEN** o usuário clica em "Sair" na sua página de perfil
+- **THEN** a sessão é invalidada e ele retorna para a página de login
 
 ## Scope
 

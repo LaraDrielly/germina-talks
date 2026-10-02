@@ -16,9 +16,12 @@ type AlbumsListProps = {
   classroomId?: string;
   title: string;
   subtitle: string;
+  role?: string;
 };
 
-export function AlbumsList({ classroomId, title, subtitle }: AlbumsListProps) {
+export function AlbumsList({ classroomId, title, subtitle, role }: AlbumsListProps) {
+  const canCreate = role && role !== 'student';
+
   const [albums, setAlbums] = useState<Album[]>([]);
   const [viewerId, setViewerId] = useState('');
   const [error, setError] = useState('');
@@ -96,13 +99,15 @@ export function AlbumsList({ classroomId, title, subtitle }: AlbumsListProps) {
           <h2 className="mt-1 text-2xl font-semibold text-primary sm:text-3xl">{title}</h2>
           <p className="mt-1 text-sm text-slate-500">{subtitle}</p>
         </div>
-        <button
-          type="button"
-          onClick={() => setShowCreate((value) => !value)}
-          className="inline-flex shrink-0 items-center justify-center rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-primary/90"
-        >
-          {showCreate ? 'Cancelar' : 'Novo álbum'}
-        </button>
+        {canCreate && (
+          <button
+            type="button"
+            onClick={() => setShowCreate((value) => !value)}
+            className="inline-flex shrink-0 items-center justify-center rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-primary/90"
+          >
+            {showCreate ? 'Cancelar' : 'Novo álbum'}
+          </button>
+        )}
       </header>
 
       {showCreate ? (
