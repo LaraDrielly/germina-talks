@@ -164,8 +164,8 @@ export class AlbumsService {
     const parsed = createAlbumSchema.parse(input);
     const { actor, user } = await this.resolveActor(session);
 
-    if (parsed.scopeType === 'global' && actor.role === UserRole.student) {
-      throw new AlbumServiceError(403, 'FORBIDDEN', 'Alunos não podem criar álbuns globais.');
+    if (actor.role === UserRole.student) {
+      throw new AlbumServiceError(403, 'FORBIDDEN', 'Alunos não podem criar álbuns.');
     }
 
     if (parsed.scopeType === 'classroom' && parsed.classroomId) {
@@ -179,7 +179,7 @@ export class AlbumsService {
         scopeType: parsed.scopeType === 'global' ? ScopeType.global : ScopeType.classroom,
         classroomId: parsed.classroomId ?? null,
         createdBy: user.id,
-        status: statusForRole(actor.role),
+        status: ContentStatus.approved,
       },
       include: {
         creator: { select: { id: true, name: true, role: true } },
@@ -242,19 +242,36 @@ export class AlbumsService {
   }
 
   async listPending(session: Session | null) {
-    const { actor } = await this.resolveActor(session);
-    if (actor.role !== UserRole.admin) {
-      throw new AlbumServiceError(403, 'FORBIDDEN', 'Apenas a coordenação pode moderar conteúdo.');
+    const { actor, user } = await this.resolveActor(session);
+    if (actor.role === UserRole.student) {
+      throw new AlbumServiceError(403, 'FORBIDDEN', 'Apenas a coordenação e professores podem moderar conteúdo.');
     }
+
+    let classroomIds: string[] = [];
+    if (actor.role === UserRole.teacher) {
+      const memberships = await this.db.classroomMember.findMany({
+        where: { userId: user.id, role: 'teacher' },
+        select: { classroomId: true },
+      });
+      classroomIds = memberships.map(m => m.classroomId);
+    }
+
+    const albumWhere = actor.role === UserRole.admin
+      ? { status: ContentStatus.pending }
+      : { status: ContentStatus.pending, classroomId: { in: classroomIds } };
+
+    const photoWhere = actor.role === UserRole.admin
+      ? { status: ContentStatus.pending }
+      : { status: ContentStatus.pending, album: { classroomId: { in: classroomIds } } };
 
     const [albums, photos] = await Promise.all([
       this.db.album.findMany({
-        where: { status: ContentStatus.pending },
+        where: albumWhere,
         orderBy: { createdAt: 'desc' },
         include: { creator: { select: { id: true, name: true } } },
       }),
       this.db.photo.findMany({
-        where: { status: ContentStatus.pending },
+        where: photoWhere,
         orderBy: { createdAt: 'desc' },
         include: { album: { select: { id: true, title: true } } },
       }),
@@ -266,8 +283,27 @@ export class AlbumsService {
   async moderateAlbum(session: Session | null, id: string, input: ModerationActionInput) {
     const parsed = moderationActionSchema.parse(input);
     const { actor, user } = await this.resolveActor(session);
+    
+    const albumToUpdate = await this.db.album.findUnique({
+      where: { id },
+    });
+
+    if (!albumToUpdate) {
+      throw new AlbumServiceError(404, 'NOT_FOUND', 'Álbum não encontrado.');
+    }
+
     if (actor.role !== UserRole.admin) {
-      throw new AlbumServiceError(403, 'FORBIDDEN', 'Apenas a coordenação pode moderar conteúdo.');
+      if (actor.role === UserRole.teacher && albumToUpdate.classroomId) {
+        const membership = await this.db.classroomMember.findUnique({
+          where: { userId_classroomId: { userId: user.id, classroomId: albumToUpdate.classroomId } },
+          select: { role: true },
+        });
+        if (membership?.role !== 'teacher') {
+          throw new AlbumServiceError(403, 'FORBIDDEN', 'Você não tem permissão para moderar este álbum.');
+        }
+      } else {
+        throw new AlbumServiceError(403, 'FORBIDDEN', 'Apenas a coordenação e professores da sala podem moderar conteúdo.');
+      }
     }
 
     const album = await this.db.album.update({
@@ -285,8 +321,28 @@ export class AlbumsService {
   async moderatePhoto(session: Session | null, id: string, input: ModerationActionInput) {
     const parsed = moderationActionSchema.parse(input);
     const { actor, user } = await this.resolveActor(session);
+    
+    const photoToUpdate = await this.db.photo.findUnique({
+      where: { id },
+      include: { album: true },
+    });
+
+    if (!photoToUpdate) {
+      throw new AlbumServiceError(404, 'NOT_FOUND', 'Foto não encontrada.');
+    }
+
     if (actor.role !== UserRole.admin) {
-      throw new AlbumServiceError(403, 'FORBIDDEN', 'Apenas a coordenação pode moderar conteúdo.');
+      if (actor.role === UserRole.teacher && photoToUpdate.album.classroomId) {
+        const membership = await this.db.classroomMember.findUnique({
+          where: { userId_classroomId: { userId: user.id, classroomId: photoToUpdate.album.classroomId } },
+          select: { role: true },
+        });
+        if (membership?.role !== 'teacher') {
+          throw new AlbumServiceError(403, 'FORBIDDEN', 'Você não tem permissão para moderar esta foto.');
+        }
+      } else {
+        throw new AlbumServiceError(403, 'FORBIDDEN', 'Apenas a coordenação e professores da sala podem moderar conteúdo.');
+      }
     }
 
     const photo = await this.db.photo.update({

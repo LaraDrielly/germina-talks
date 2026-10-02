@@ -268,6 +268,10 @@ export class BulletinService {
     const parsed = createBulletinSchema.parse(input);
     const { actor, user } = await this.resolveActor(session);
 
+    if (actor.role === UserRole.student) {
+      throw new BulletinServiceError(403, 'FORBIDDEN', 'Alunos não podem criar recados no mural.');
+    }
+
     if (parsed.scopeType === 'global' && actor.role !== UserRole.admin) {
       throw new BulletinServiceError(
         403,
@@ -342,6 +346,33 @@ export class BulletinService {
     return {
       data: toBulletinDto(updated, true),
     };
+  }
+
+  async delete(session: Session | null, id: string): Promise<{ success: boolean }> {
+    if (!id.trim()) {
+      throw new BulletinServiceError(400, 'VALIDATION_ERROR', 'O identificador do recado é inválido.');
+    }
+
+    const { actor } = await this.resolveActor(session);
+    if (actor.role !== UserRole.admin) {
+      throw new BulletinServiceError(
+        403,
+        'FORBIDDEN',
+        'Apenas a coordenação pode excluir recados.',
+      );
+    }
+
+    const item = await this.db.bulletinItem.findUnique({ where: { id } });
+    if (!item || item.deletedAt) {
+      throw new BulletinServiceError(404, 'NOT_FOUND', 'Este recado não foi encontrado.');
+    }
+
+    await this.db.bulletinItem.update({
+      where: { id },
+      data: { deletedAt: new Date() },
+    });
+
+    return { success: true };
   }
 }
 

@@ -1,6 +1,7 @@
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/auth';
 import { getClassroomsForUser } from '@/lib/services/classroom';
+import { LogoutButton } from './logout-button';
 
 const roleLabels: Record<string, string> = {
   student: 'Aluno',
@@ -20,7 +21,7 @@ export default async function PerfilPage() {
     .map((part) => part[0]?.toUpperCase() ?? '')
     .join('');
 
-  const classrooms = session?.user?.id ? await getClassroomsForUser(session.user.id) : [];
+  const classrooms = session?.user?.id ? await getClassroomsForUser(session.user.id, session.user.role) : [];
   const activeClassroom = classrooms[0];
 
   return (
@@ -53,6 +54,9 @@ export default async function PerfilPage() {
             {activeClassroom?.name ?? 'Nenhuma sala vinculada'}
           </p>
         </div>
+      </div>
+      <div>
+        <LogoutButton />
       </div>
     </div>
   );

@@ -27,7 +27,7 @@ export function PhotoTile({ photo, viewerId }: PhotoTileProps) {
         </span>
       ) : null}
       {photo.caption ? (
-        <figcaption className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent px-3 pb-3 pt-8 text-xs text-white opacity-100 sm:opacity-0 sm:transition sm:group-hover:opacity-100">
+        <figcaption className="border-t border-slate-100 bg-white p-3 text-sm text-slate-700">
           {photo.caption}
         </figcaption>
       ) : null}

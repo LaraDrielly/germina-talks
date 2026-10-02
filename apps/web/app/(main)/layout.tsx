@@ -2,16 +2,12 @@ import Link from 'next/link';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/auth';
 import { getClassroomsForUser } from '@/lib/services/classroom';
+import { HeaderScope } from '@/components/ui/header-scope';
 import { QueryProvider } from '@/components/providers/query-provider';
+import { SearchInput } from '@/components/ui/search-input';
 import { SchoolTrack } from '@prisma/client';
 
-const navigation = [
-  { href: '/feed', label: 'Feed' },
-  { href: '/mural', label: 'Mural' },
-  { href: '/fotos', label: 'Fotos' },
-  { href: '/salas', label: 'Salas' },
-  { href: '/perfil', label: 'Perfil' },
-];
+
 
 const trackColors: Record<SchoolTrack, string> = {
   business: 'bg-[#27AAE1]', // Accent color
@@ -22,7 +18,17 @@ const trackColors: Record<SchoolTrack, string> = {
 export default async function MainLayout({ children }: { children: React.ReactNode }) {
   const session = await getServerSession(authOptions);
   const userId = session?.user?.id;
-  const classrooms = userId ? await getClassroomsForUser(userId) : [];
+  const role = session?.user?.role;
+  const classrooms = userId ? await getClassroomsForUser(userId, role) : [];
+
+  const navItems = [
+    { href: '/feed', label: 'Feed' },
+    { href: '/mural', label: 'Mural' },
+    { href: '/fotos', label: 'Fotos' },
+    { href: '/salas', label: 'Salas' },
+    { href: '/perfil', label: 'Perfil' },
+    ...(role !== 'student' ? [{ href: '/moderation', label: 'Moderação' }] : []),
+  ];
 
   const groupedClassrooms = classrooms.reduce(
     (acc, classroom) => {
@@ -38,7 +44,7 @@ export default async function MainLayout({ children }: { children: React.ReactNo
 
   return (
     <div className="min-h-screen bg-slate-100 text-slate-800">
-      <div className="mx-auto flex max-w-7xl gap-6 px-4 py-4 md:px-6 lg:py-6">
+      <div className="flex w-full gap-6 px-4 py-4 md:px-6 lg:py-6">
         <aside className="hidden w-72 shrink-0 rounded-3xl bg-primary p-5 text-white shadow-lg lg:block">
           <div className="flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-sm font-bold">
@@ -46,12 +52,12 @@ export default async function MainLayout({ children }: { children: React.ReactNo
             </div>
             <div>
               <p className="text-xs uppercase tracking-[0.2em] text-white/70">Instituto J&F</p>
-              <h1 className="text-xl font-semibold">Germina Talks</h1>
+              <h1 className="text-xl font-semibold">GerminaTalks</h1>
             </div>
           </div>
 
           <nav className="mt-8 space-y-2">
-            {navigation.map((item) => (
+            {navItems.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
@@ -63,7 +69,7 @@ export default async function MainLayout({ children }: { children: React.ReactNo
           </nav>
 
           <div className="mt-10 space-y-6">
-            {Object.entries(groupedClassrooms).map(([track, rooms]) => (
+            {session?.user.role !== 'admin' && Object.entries(groupedClassrooms).map(([track, rooms]) => (
               <div key={track}>
                 <p className="text-xs uppercase tracking-[0.2em] text-white/70">{track}</p>
                 <ul className="mt-3 space-y-2 text-sm text-white/85">
@@ -78,17 +84,12 @@ export default async function MainLayout({ children }: { children: React.ReactNo
           </div>
         </aside>
 
-        <div className="flex-1">
+        <div className="flex-1 min-w-0 pb-16 lg:pb-0">
           <header className="mb-5 flex items-center justify-between rounded-2xl border border-slate-200 bg-white px-4 py-3 shadow-sm">
-            <div>
-              <p className="text-[10px] uppercase tracking-[0.2em] text-accent">Escopo</p>
-              <p className="text-sm font-semibold text-slate-700">Toda a escola</p>
-            </div>
+            <HeaderScope classrooms={classrooms.map((c) => ({ id: c.id, name: c.name }))} />
 
             <div className="flex items-center gap-3">
-              <button className="hidden rounded-full border border-slate-200 px-3 py-2 text-sm text-slate-600 md:inline-flex">
-                Buscar
-              </button>
+              <SearchInput />
               <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-sm font-semibold text-white">
                 {session?.user.name?.split(' ').map((n: string) => n[0]).join('')}
               </div>
@@ -102,8 +103,8 @@ export default async function MainLayout({ children }: { children: React.ReactNo
       </div>
 
       <nav className="fixed inset-x-0 bottom-0 z-20 border-t border-slate-200 bg-white/95 px-4 py-2 shadow-[0_-2px_12px_rgba(0,0,0,0.06)] backdrop-blur lg:hidden">
-        <div className="mx-auto grid max-w-md grid-cols-5 gap-2 text-center text-[11px] font-medium text-slate-600">
-          {navigation.map((item) => (
+        <div className={`mx-auto grid max-w-md gap-2 text-center text-[11px] font-medium text-slate-600 ${navItems.length === 6 ? 'grid-cols-6' : 'grid-cols-5'}`}>
+          {navItems.map((item) => (
             <Link key={item.href} href={item.href} className="rounded-xl px-2 py-2 transition hover:bg-slate-100">
               {item.label}
             </Link>
